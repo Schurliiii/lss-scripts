@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LSS Verwaltung",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "author": "Schurliiii",
   "description": "Fuhrpark, Personal, Wachen, Ausbildungen und Ausbauten in Leitstellenspiel.de auf einen Blick – mit Bearbeitung direkt im Panel.",
   "host_permissions": [

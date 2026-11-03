@@ -65,8 +65,14 @@
   document.body.appendChild(layer);
   layer.addEventListener("click", handleDialogClick);
   layer.addEventListener("input", (event) => {
-    if (event.target.closest('[data-ref="dialog"]')) readBuildInputs();
+    if (!event.target.closest('[data-ref="dialog"]')) return;
+    readBuildInputs();
+    // Anderer Gebäudetyp → passende Zusatzfelder (z. B. Startfahrzeug) einblenden.
+    if (event.target.matches('[data-field="type"]')) renderDialog();
   });
+  layer.addEventListener("toggle", (event) => {
+    if (state.dialog && event.target.matches?.(".wp-more")) state.dialog.moreOpen = event.target.open;
+  }, true);
   layer.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") event.stopPropagation();
   });
@@ -1067,7 +1073,51 @@
         label: (select.id && doc.querySelector(`label[for="${CSS.escape(select.id)}"]`)?.textContent.trim()) || select.closest(".form-group")?.querySelector("label")?.textContent.trim() || select.name,
         options: options(select),
         value: select.value,
+        types: fieldBuildingTypes(select, form),
+        hidden: hiddenInForm(select, form),
       }));
+  }
+
+  // Das Spielformular enthält z. B. je Wachentyp ein eigenes „Start Fahrzeug“-Feld
+  // und blendet per Skript nur das passende ein. Die Zuordnung ergibt sich aus
+  // Name, ID und Klassen des Feldes und seiner Umgebung.
+  function fieldBuildingTypes(select, form) {
+    const parts = [select.name, select.id];
+    for (let node = select.parentElement; node && node !== form; node = node.parentElement) {
+      parts.push(node.id, typeof node.className === "string" ? node.className : "", ...Object.values(node.dataset || {}));
+    }
+    const text = parts.join(" ").toLowerCase();
+    const explicit = text.match(/building[_-]?type[_-]?(\d+)/);
+    if (explicit) return [Number(explicit[1])];
+    const small = /kleinwache|small/.test(text);
+    if (/feuer|fire/.test(text)) return [small ? 18 : 0];
+    if (/rettung|rescue|ambulance/.test(text)) return [small ? 20 : 2];
+    if (/polizei|police/.test(text)) return [small ? 19 : 6];
+    return null;
+  }
+
+  function hiddenInForm(select, form) {
+    for (let node = select; node && node !== form; node = node.parentElement) {
+      if (node.hidden || /display\s*:\s*none/i.test(node.getAttribute("style") || "") || /(?:^|\s)(?:hidden|d-none)(?:\s|$)/.test(typeof node.className === "string" ? node.className : "")) return true;
+    }
+    return false;
+  }
+
+  // Felder, die für den gewählten Gebäudetyp gelten. Nie zwei Felder mit derselben
+  // Beschriftung gleichzeitig: passende Typzuordnung vor sichtbaren vor versteckten.
+  function applicableExtras(build) {
+    const type = Number(build.typeValue);
+    const ranked = build.extraSelects
+      .map((extra, index) => ({ extra, index, rank: extra.types ? 0 : extra.hidden ? 2 : 1 }))
+      .filter(({ extra }) => !extra.types || extra.types.includes(type))
+      .sort((a, b) => a.rank - b.rank || a.index - b.index);
+    const labels = new Set();
+    return ranked.filter(({ extra }) => {
+      const label = extra.label.toLocaleLowerCase("de");
+      if (labels.has(label)) return false;
+      labels.add(label);
+      return true;
+    }).sort((a, b) => a.index - b.index);
   }
 
   function readBuildInputs() {
@@ -1157,8 +1207,9 @@
     const selectHtml = (field, options, value, extra = "") => `<select ${field}${extra}>${options.map((option) => `<option value="${escapeHtml(option.value)}"${String(option.value) === String(value) ? " selected" : ""}>${escapeHtml(option.label || "–")}</option>`).join("")}</select>`;
     const typeField = dialog.typeOptions.length ? `<label class="wp-field">Gebäudetyp${selectHtml('data-field="type"', dialog.typeOptions, dialog.typeValue)}</label>` : "";
     const dispatchField = dialog.dispatchOptions.length ? `<label class="wp-field">Leitstelle${selectHtml('data-field="dispatch"', dialog.dispatchOptions, dialog.dispatchValue)}</label>` : "";
-    const extraFields = dialog.extraSelects.some((extra) => extra.options.length > 1)
-      ? `<details class="wp-more"><summary>Weitere Optionen</summary><div>${dialog.extraSelects.map((extra, index) => extra.options.length > 1 ? `<label class="wp-field">${escapeHtml(extra.label)}${selectHtml(`data-extra="${index}"`, extra.options, extra.value)}</label>` : "").join("")}</div></details>`
+    const shownExtras = applicableExtras(dialog).filter(({ extra }) => extra.options.length > 1);
+    const extraFields = shownExtras.length
+      ? `<details class="wp-more"${dialog.moreOpen ? " open" : ""}><summary>Weitere Optionen</summary><div>${shownExtras.map(({ extra, index }) => `<label class="wp-field">${escapeHtml(extra.label)}${selectHtml(`data-extra="${index}"`, extra.options, extra.value)}</label>`).join("")}</div></details>`
       : "";
     const maxLength = Number(dialog.fields.name?.maxLength) > 0 ? Number(dialog.fields.name.maxLength) : 120;
     element.innerHTML = wrap(`${header(`WACHE BAUEN${station.label ? ` · ${station.label.toUpperCase()}` : ""}`, station.name, glyph)}
@@ -1251,9 +1302,13 @@
       fields.lat.value = build.lat.toFixed(7);
       fields.lon.value = build.lon.toFixed(7);
       if (fields.address && build.station.address) fields.address.value = build.station.address;
+      // Nur die Felder des gewählten Typs mitsenden; deaktivierte Felder lässt FormData weg.
+      const applicable = new Set(applicableExtras(build).map(({ extra }) => extra.name));
       for (const extra of build.extraSelects) {
         const select = form.querySelector(`select[name="${CSS.escape(extra.name)}"]`);
-        if (select) select.value = extra.value;
+        if (!select) continue;
+        select.disabled = !applicable.has(extra.name);
+        select.value = extra.value;
       }
       const knownIds = new Set(build.buildings.map((building) => Number(building.id)));
       const responseText = await submitForm(form, build.submit?.name ? [[build.submit.name, build.submit.value || "1"]] : []);

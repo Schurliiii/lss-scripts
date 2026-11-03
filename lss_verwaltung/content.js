@@ -285,8 +285,14 @@
   const plannerOpener = detectPlannerOpener();
   plannerRoot.addEventListener("click", handlePlannerClick);
   plannerRoot.addEventListener("input", (event) => {
-    if (event.target.closest("#lssfo-build")) readBuildInputs();
+    if (!event.target.closest("#lssfo-build")) return;
+    readBuildInputs();
+    // Anderer Gebäudetyp → passende Zusatzfelder (z. B. Startfahrzeug) einblenden.
+    if (event.target.id === "lssfo-build-type") renderBuild();
   });
+  plannerRoot.addEventListener("toggle", (event) => {
+    if (state.build && event.target.matches?.(".lssfo-build-more")) state.build.moreOpen = event.target.open;
+  }, true);
   if (plannerOpener) {
     plannerRoot.querySelector(".lssfo-planner-pill").hidden = false;
     window.addEventListener("message", handlePlannerMessage);
@@ -2526,7 +2532,51 @@
         label: (select.id && doc.querySelector(`label[for="${CSS.escape(select.id)}"]`)?.textContent.trim()) || select.closest(".form-group")?.querySelector("label")?.textContent.trim() || select.name,
         options: options(select),
         value: select.value,
+        types: fieldBuildingTypes(select, form),
+        hidden: hiddenInForm(select, form),
       }));
+  }
+
+  // Das Spielformular enthält z. B. je Wachentyp ein eigenes „Start Fahrzeug“-Feld
+  // und blendet per Skript nur das passende ein. Die Zuordnung ergibt sich aus
+  // Name, ID und Klassen des Feldes und seiner Umgebung.
+  function fieldBuildingTypes(select, form) {
+    const parts = [select.name, select.id];
+    for (let node = select.parentElement; node && node !== form; node = node.parentElement) {
+      parts.push(node.id, typeof node.className === "string" ? node.className : "", ...Object.values(node.dataset || {}));
+    }
+    const text = parts.join(" ").toLowerCase();
+    const explicit = text.match(/building[_-]?type[_-]?(\d+)/);
+    if (explicit) return [Number(explicit[1])];
+    const small = /kleinwache|small/.test(text);
+    if (/feuer|fire/.test(text)) return [small ? 18 : 0];
+    if (/rettung|rescue|ambulance/.test(text)) return [small ? 20 : 2];
+    if (/polizei|police/.test(text)) return [small ? 19 : 6];
+    return null;
+  }
+
+  function hiddenInForm(select, form) {
+    for (let node = select; node && node !== form; node = node.parentElement) {
+      if (node.hidden || /display\s*:\s*none/i.test(node.getAttribute("style") || "") || /(?:^|\s)(?:hidden|d-none)(?:\s|$)/.test(typeof node.className === "string" ? node.className : "")) return true;
+    }
+    return false;
+  }
+
+  // Felder, die für den gewählten Gebäudetyp gelten. Nie zwei Felder mit derselben
+  // Beschriftung gleichzeitig: passende Typzuordnung vor sichtbaren vor versteckten.
+  function applicableExtras(build) {
+    const type = Number(build.typeValue);
+    const ranked = build.extraSelects
+      .map((extra, index) => ({ extra, index, rank: extra.types ? 0 : extra.hidden ? 2 : 1 }))
+      .filter(({ extra }) => !extra.types || extra.types.includes(type))
+      .sort((a, b) => a.rank - b.rank || a.index - b.index);
+    const labels = new Set();
+    return ranked.filter(({ extra }) => {
+      const label = extra.label.toLocaleLowerCase("de");
+      if (labels.has(label)) return false;
+      labels.add(label);
+      return true;
+    }).sort((a, b) => a.index - b.index);
   }
 
   function readBuildInputs() {
@@ -2615,9 +2665,9 @@
     const selectHtml = (id, options, value, extra = "") => `<select id="${id}"${extra}>${options.map((option) => `<option value="${escapeHtml(option.value)}"${String(option.value) === String(value) ? " selected" : ""}>${escapeHtml(option.label || "–")}</option>`).join("")}</select>`;
     const typeField = build.typeOptions.length ? `<label>Gebäudetyp${selectHtml("lssfo-build-type", build.typeOptions, build.typeValue)}</label>` : "";
     const dispatchField = build.dispatchOptions.length ? `<label>Leitstelle${selectHtml("lssfo-build-dispatch", build.dispatchOptions, build.dispatchValue)}</label>` : "";
-    const extras = build.extraSelects.filter((extra) => extra.options.length > 1);
+    const extras = applicableExtras(build).filter(({ extra }) => extra.options.length > 1);
     const extraFields = extras.length
-      ? `<details><summary>Weitere Optionen</summary><div>${build.extraSelects.map((extra, index) => extra.options.length > 1 ? `<label>${escapeHtml(extra.label)}${selectHtml(`lssfo-build-extra-${index}`, extra.options, extra.value, ` data-build-extra="${index}"`)}</label>` : "").join("")}</div></details>`
+      ? `<details class="lssfo-build-more"${build.moreOpen ? " open" : ""}><summary>Weitere Optionen</summary><div>${extras.map(({ extra, index }) => `<label>${escapeHtml(extra.label)}${selectHtml(`lssfo-build-extra-${index}`, extra.options, extra.value, ` data-build-extra="${index}"`)}</label>`).join("")}</div></details>`
       : "";
     element.innerHTML = wrap(`${header(`WACHE BAUEN${station.label ? ` · ${station.label.toUpperCase()}` : ""}`, station.name, glyph)}
       <div class="lssfo-manager-body">
@@ -2683,9 +2733,13 @@
       fields.lat.value = build.lat.toFixed(7);
       fields.lon.value = build.lon.toFixed(7);
       if (fields.address && build.station.address) fields.address.value = build.station.address;
+      // Nur die Felder des gewählten Typs mitsenden; deaktivierte Felder lässt FormData weg.
+      const applicable = new Set(applicableExtras(build).map(({ extra }) => extra.name));
       for (const extra of build.extraSelects) {
         const select = form.querySelector(`select[name="${CSS.escape(extra.name)}"]`);
-        if (select) select.value = extra.value;
+        if (!select) continue;
+        select.disabled = !applicable.has(extra.name);
+        select.value = extra.value;
       }
       const knownIds = new Set(build.buildings.map((building) => Number(building.id)));
       const response = await submitParsedForm(form, build.submit?.name ? [[build.submit.name, build.submit.value || "1"]] : []);

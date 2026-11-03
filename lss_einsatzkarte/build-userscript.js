@@ -39,7 +39,7 @@ const metadata = [
   "// ==UserScript==",
   "// @name         LSS Wachenplaner Österreich",
   `// @namespace    ${release.namespace("local.lss-wachenplaner")}`,
-  "// @version      1.1.2",
+  "// @version      1.1.3",
   "// @description  Alle echten Feuerwehr- und Rettungsstandorte Österreichs direkt in Leitstellenspiel.de: zeigt gebaute und fehlende Wachen und baut fehlende per Klick.",
   "// @author       Schurliiii",
   ...release.iconLines(path.join(projectDir, "assets")),

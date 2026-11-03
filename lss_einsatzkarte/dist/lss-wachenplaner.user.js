@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LSS Wachenplaner Österreich
 // @namespace    https://github.com/Schurliiii/lss-scripts
-// @version      1.1.2
+// @version      1.1.3
 // @description  Alle echten Feuerwehr- und Rettungsstandorte Österreichs direkt in Leitstellenspiel.de: zeigt gebaute und fehlende Wachen und baut fehlende per Klick.
 // @author       Schurliiii
 // @icon         data:image/png;base64,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
@@ -107,8 +107,14 @@
   document.body.appendChild(layer);
   layer.addEventListener("click", handleDialogClick);
   layer.addEventListener("input", (event) => {
-    if (event.target.closest('[data-ref="dialog"]')) readBuildInputs();
+    if (!event.target.closest('[data-ref="dialog"]')) return;
+    readBuildInputs();
+    // Anderer Gebäudetyp → passende Zusatzfelder (z. B. Startfahrzeug) einblenden.
+    if (event.target.matches('[data-field="type"]')) renderDialog();
   });
+  layer.addEventListener("toggle", (event) => {
+    if (state.dialog && event.target.matches?.(".wp-more")) state.dialog.moreOpen = event.target.open;
+  }, true);
   layer.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") event.stopPropagation();
   });
@@ -1109,7 +1115,51 @@
         label: (select.id && doc.querySelector(`label[for="${CSS.escape(select.id)}"]`)?.textContent.trim()) || select.closest(".form-group")?.querySelector("label")?.textContent.trim() || select.name,
         options: options(select),
         value: select.value,
+        types: fieldBuildingTypes(select, form),
+        hidden: hiddenInForm(select, form),
       }));
+  }
+
+  // Das Spielformular enthält z. B. je Wachentyp ein eigenes „Start Fahrzeug“-Feld
+  // und blendet per Skript nur das passende ein. Die Zuordnung ergibt sich aus
+  // Name, ID und Klassen des Feldes und seiner Umgebung.
+  function fieldBuildingTypes(select, form) {
+    const parts = [select.name, select.id];
+    for (let node = select.parentElement; node && node !== form; node = node.parentElement) {
+      parts.push(node.id, typeof node.className === "string" ? node.className : "", ...Object.values(node.dataset || {}));
+    }
+    const text = parts.join(" ").toLowerCase();
+    const explicit = text.match(/building[_-]?type[_-]?(\d+)/);
+    if (explicit) return [Number(explicit[1])];
+    const small = /kleinwache|small/.test(text);
+    if (/feuer|fire/.test(text)) return [small ? 18 : 0];
+    if (/rettung|rescue|ambulance/.test(text)) return [small ? 20 : 2];
+    if (/polizei|police/.test(text)) return [small ? 19 : 6];
+    return null;
+  }
+
+  function hiddenInForm(select, form) {
+    for (let node = select; node && node !== form; node = node.parentElement) {
+      if (node.hidden || /display\s*:\s*none/i.test(node.getAttribute("style") || "") || /(?:^|\s)(?:hidden|d-none)(?:\s|$)/.test(typeof node.className === "string" ? node.className : "")) return true;
+    }
+    return false;
+  }
+
+  // Felder, die für den gewählten Gebäudetyp gelten. Nie zwei Felder mit derselben
+  // Beschriftung gleichzeitig: passende Typzuordnung vor sichtbaren vor versteckten.
+  function applicableExtras(build) {
+    const type = Number(build.typeValue);
+    const ranked = build.extraSelects
+      .map((extra, index) => ({ extra, index, rank: extra.types ? 0 : extra.hidden ? 2 : 1 }))
+      .filter(({ extra }) => !extra.types || extra.types.includes(type))
+      .sort((a, b) => a.rank - b.rank || a.index - b.index);
+    const labels = new Set();
+    return ranked.filter(({ extra }) => {
+      const label = extra.label.toLocaleLowerCase("de");
+      if (labels.has(label)) return false;
+      labels.add(label);
+      return true;
+    }).sort((a, b) => a.index - b.index);
   }
 
   function readBuildInputs() {
@@ -1199,8 +1249,9 @@
     const selectHtml = (field, options, value, extra = "") => `<select ${field}${extra}>${options.map((option) => `<option value="${escapeHtml(option.value)}"${String(option.value) === String(value) ? " selected" : ""}>${escapeHtml(option.label || "–")}</option>`).join("")}</select>`;
     const typeField = dialog.typeOptions.length ? `<label class="wp-field">Gebäudetyp${selectHtml('data-field="type"', dialog.typeOptions, dialog.typeValue)}</label>` : "";
     const dispatchField = dialog.dispatchOptions.length ? `<label class="wp-field">Leitstelle${selectHtml('data-field="dispatch"', dialog.dispatchOptions, dialog.dispatchValue)}</label>` : "";
-    const extraFields = dialog.extraSelects.some((extra) => extra.options.length > 1)
-      ? `<details class="wp-more"><summary>Weitere Optionen</summary><div>${dialog.extraSelects.map((extra, index) => extra.options.length > 1 ? `<label class="wp-field">${escapeHtml(extra.label)}${selectHtml(`data-extra="${index}"`, extra.options, extra.value)}</label>` : "").join("")}</div></details>`
+    const shownExtras = applicableExtras(dialog).filter(({ extra }) => extra.options.length > 1);
+    const extraFields = shownExtras.length
+      ? `<details class="wp-more"${dialog.moreOpen ? " open" : ""}><summary>Weitere Optionen</summary><div>${shownExtras.map(({ extra, index }) => `<label class="wp-field">${escapeHtml(extra.label)}${selectHtml(`data-extra="${index}"`, extra.options, extra.value)}</label>`).join("")}</div></details>`
       : "";
     const maxLength = Number(dialog.fields.name?.maxLength) > 0 ? Number(dialog.fields.name.maxLength) : 120;
     element.innerHTML = wrap(`${header(`WACHE BAUEN${station.label ? ` · ${station.label.toUpperCase()}` : ""}`, station.name, glyph)}
@@ -1293,9 +1344,13 @@
       fields.lat.value = build.lat.toFixed(7);
       fields.lon.value = build.lon.toFixed(7);
       if (fields.address && build.station.address) fields.address.value = build.station.address;
+      // Nur die Felder des gewählten Typs mitsenden; deaktivierte Felder lässt FormData weg.
+      const applicable = new Set(applicableExtras(build).map(({ extra }) => extra.name));
       for (const extra of build.extraSelects) {
         const select = form.querySelector(`select[name="${CSS.escape(extra.name)}"]`);
-        if (select) select.value = extra.value;
+        if (!select) continue;
+        select.disabled = !applicable.has(extra.name);
+        select.value = extra.value;
       }
       const knownIds = new Set(build.buildings.map((building) => Number(building.id)));
       const responseText = await submitForm(form, build.submit?.name ? [[build.submit.name, build.submit.value || "1"]] : []);

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LSS Verwaltung
 // @namespace    https://github.com/Schurliiii/lss-scripts
-// @version      1.3.2
+// @version      1.3.3
 // @description  Fuhrpark, Personal, Wachen, Ausbildungen und Ausbauten in Leitstellenspiel.de auf einen Blick – mit Bearbeitung direkt im Panel.
 // @author       Schurliiii
 // @icon         data:image/png;base64,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
@@ -468,8 +468,14 @@
   const plannerOpener = detectPlannerOpener();
   plannerRoot.addEventListener("click", handlePlannerClick);
   plannerRoot.addEventListener("input", (event) => {
-    if (event.target.closest("#lssfo-build")) readBuildInputs();
+    if (!event.target.closest("#lssfo-build")) return;
+    readBuildInputs();
+    // Anderer Gebäudetyp → passende Zusatzfelder (z. B. Startfahrzeug) einblenden.
+    if (event.target.id === "lssfo-build-type") renderBuild();
   });
+  plannerRoot.addEventListener("toggle", (event) => {
+    if (state.build && event.target.matches?.(".lssfo-build-more")) state.build.moreOpen = event.target.open;
+  }, true);
   if (plannerOpener) {
     plannerRoot.querySelector(".lssfo-planner-pill").hidden = false;
     window.addEventListener("message", handlePlannerMessage);
@@ -2709,7 +2715,51 @@
         label: (select.id && doc.querySelector(`label[for="${CSS.escape(select.id)}"]`)?.textContent.trim()) || select.closest(".form-group")?.querySelector("label")?.textContent.trim() || select.name,
         options: options(select),
         value: select.value,
+        types: fieldBuildingTypes(select, form),
+        hidden: hiddenInForm(select, form),
       }));
+  }
+
+  // Das Spielformular enthält z. B. je Wachentyp ein eigenes „Start Fahrzeug“-Feld
+  // und blendet per Skript nur das passende ein. Die Zuordnung ergibt sich aus
+  // Name, ID und Klassen des Feldes und seiner Umgebung.
+  function fieldBuildingTypes(select, form) {
+    const parts = [select.name, select.id];
+    for (let node = select.parentElement; node && node !== form; node = node.parentElement) {
+      parts.push(node.id, typeof node.className === "string" ? node.className : "", ...Object.values(node.dataset || {}));
+    }
+    const text = parts.join(" ").toLowerCase();
+    const explicit = text.match(/building[_-]?type[_-]?(\d+)/);
+    if (explicit) return [Number(explicit[1])];
+    const small = /kleinwache|small/.test(text);
+    if (/feuer|fire/.test(text)) return [small ? 18 : 0];
+    if (/rettung|rescue|ambulance/.test(text)) return [small ? 20 : 2];
+    if (/polizei|police/.test(text)) return [small ? 19 : 6];
+    return null;
+  }
+
+  function hiddenInForm(select, form) {
+    for (let node = select; node && node !== form; node = node.parentElement) {
+      if (node.hidden || /display\s*:\s*none/i.test(node.getAttribute("style") || "") || /(?:^|\s)(?:hidden|d-none)(?:\s|$)/.test(typeof node.className === "string" ? node.className : "")) return true;
+    }
+    return false;
+  }
+
+  // Felder, die für den gewählten Gebäudetyp gelten. Nie zwei Felder mit derselben
+  // Beschriftung gleichzeitig: passende Typzuordnung vor sichtbaren vor versteckten.
+  function applicableExtras(build) {
+    const type = Number(build.typeValue);
+    const ranked = build.extraSelects
+      .map((extra, index) => ({ extra, index, rank: extra.types ? 0 : extra.hidden ? 2 : 1 }))
+      .filter(({ extra }) => !extra.types || extra.types.includes(type))
+      .sort((a, b) => a.rank - b.rank || a.index - b.index);
+    const labels = new Set();
+    return ranked.filter(({ extra }) => {
+      const label = extra.label.toLocaleLowerCase("de");
+      if (labels.has(label)) return false;
+      labels.add(label);
+      return true;
+    }).sort((a, b) => a.index - b.index);
   }
 
   function readBuildInputs() {
@@ -2798,9 +2848,9 @@
     const selectHtml = (id, options, value, extra = "") => `<select id="${id}"${extra}>${options.map((option) => `<option value="${escapeHtml(option.value)}"${String(option.value) === String(value) ? " selected" : ""}>${escapeHtml(option.label || "–")}</option>`).join("")}</select>`;
     const typeField = build.typeOptions.length ? `<label>Gebäudetyp${selectHtml("lssfo-build-type", build.typeOptions, build.typeValue)}</label>` : "";
     const dispatchField = build.dispatchOptions.length ? `<label>Leitstelle${selectHtml("lssfo-build-dispatch", build.dispatchOptions, build.dispatchValue)}</label>` : "";
-    const extras = build.extraSelects.filter((extra) => extra.options.length > 1);
+    const extras = applicableExtras(build).filter(({ extra }) => extra.options.length > 1);
     const extraFields = extras.length
-      ? `<details><summary>Weitere Optionen</summary><div>${build.extraSelects.map((extra, index) => extra.options.length > 1 ? `<label>${escapeHtml(extra.label)}${selectHtml(`lssfo-build-extra-${index}`, extra.options, extra.value, ` data-build-extra="${index}"`)}</label>` : "").join("")}</div></details>`
+      ? `<details class="lssfo-build-more"${build.moreOpen ? " open" : ""}><summary>Weitere Optionen</summary><div>${extras.map(({ extra, index }) => `<label>${escapeHtml(extra.label)}${selectHtml(`lssfo-build-extra-${index}`, extra.options, extra.value, ` data-build-extra="${index}"`)}</label>`).join("")}</div></details>`
       : "";
     element.innerHTML = wrap(`${header(`WACHE BAUEN${station.label ? ` · ${station.label.toUpperCase()}` : ""}`, station.name, glyph)}
       <div class="lssfo-manager-body">
@@ -2866,9 +2916,13 @@
       fields.lat.value = build.lat.toFixed(7);
       fields.lon.value = build.lon.toFixed(7);
       if (fields.address && build.station.address) fields.address.value = build.station.address;
+      // Nur die Felder des gewählten Typs mitsenden; deaktivierte Felder lässt FormData weg.
+      const applicable = new Set(applicableExtras(build).map(({ extra }) => extra.name));
       for (const extra of build.extraSelects) {
         const select = form.querySelector(`select[name="${CSS.escape(extra.name)}"]`);
-        if (select) select.value = extra.value;
+        if (!select) continue;
+        select.disabled = !applicable.has(extra.name);
+        select.value = extra.value;
       }
       const knownIds = new Set(build.buildings.map((building) => Number(building.id)));
       const response = await submitParsedForm(form, build.submit?.name ? [[build.submit.name, build.submit.value || "1"]] : []);
