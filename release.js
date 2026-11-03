@@ -26,8 +26,14 @@ function distributionLines(folder, fileBase) {
   ];
 }
 
-function iconLine(pngFile) {
-  return `// @icon         data:image/png;base64,${fs.readFileSync(pngFile).toString("base64")}`;
+// Eigens gerenderte Größen statt eines verkleinerten großen Bildes: 32 px für die
+// Tampermonkey-Liste (16 px, auf HiDPI 32 px) und 64 px für größere Ansichten.
+function iconLines(assetsDir) {
+  const dataUri = (file) => `data:image/png;base64,${fs.readFileSync(path.join(assetsDir, file)).toString("base64")}`;
+  return [
+    `// @icon         ${dataUri("icon-32.png")}`,
+    `// @icon64       ${dataUri("icon-64.png")}`,
+  ];
 }
 
 // Schreibt das Script und die zugehörige .meta.js (nur der Kopfblock).
@@ -39,4 +45,4 @@ function writeUserscript(distDir, fileBase, metadata, body) {
   return userFile;
 }
 
-module.exports = { distributionLines, iconLine, namespace, published, writeUserscript };
+module.exports = { distributionLines, iconLines, namespace, published, writeUserscript };
