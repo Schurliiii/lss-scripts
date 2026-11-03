@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="csrf-token" content="test">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LSS Verwaltung – Testansicht</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="../styles.css">
+  <style>body{margin:0;min-height:100vh;background:#202526;font-family:system-ui} body.dark tbody tr td{color:#101820;background:#333} .mock-navbar{height:50px;background:#cf2f2c}.mock-navbar ul{display:flex;justify-content:flex-end;height:50px;margin:0;padding:0 30px;list-style:none}.mock-navbar li{height:50px}.mock-navbar a{display:flex;height:50px;align-items:center;padding:0 14px;color:#fff;text-decoration:none}.mock-navbar .dropdown-menu{display:none}.mock{padding:40px;color:#a9b6ba}</style>
+</head>
+<body class="dark">
+  <nav class="navbar mock-navbar"><ul class="navbar-nav navbar-right"><li class="dropdown"><a href="#" title="Community">▤</a><ul class="dropdown-menu"><li><a href="/forum">Forum</a></li></ul></li><li id="mock-next"><a href="/credits">Credits</a></li></ul></nav>
+  <div class="mock"><h2>Leitstellenspiel – lokale Testseite</h2><p>Unten rechts die Übersicht öffnen.</p></div>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const mocks = {
+      "/api/buildings": [
+        { id: 20, caption: "Feuerwache Innenstadt", building_type: 0, leitstelle_building_id: 30, latitude: 48.2082, longitude: 16.3738, personal_count: 14, personal_count_target: 18, enabled: true, extensions: [{ type_id: 0, caption: "Rettungsdienst-Erweiterung", enabled: false, available: true }, { type_id: 1, caption: "Wasserrettung", enabled: true, available_at: "2026-09-05T08:00:00Z" }] },
+        { id: 21, caption: "Rettungswache Nord", building_type: 2, leitstelle_building_id: 30, latitude: 48.238, longitude: 16.38, personal_count: 7, personal_count_target: 8, enabled: true, extensions: [] },
+        { id: 22, caption: "Feuerwehrschule Wien", building_type: 1, latitude: 48.19, longitude: 16.41, personal_count: 0, enabled: true, extensions: [] },
+        { id: 30, caption: "Leitstelle Wien", building_type: 7, latitude: 48.214, longitude: 16.36, personal_count: 0, enabled: true, extensions: [] }
+      ],
+      "/api/v2/vehicles?limit=10000": {
+        result: [
+          { id: 101, caption: "Florian 1/46-1", vehicle_type: 27, building_id: 20, assigned_personnel_count: 1, max_personnel_override: null },
+          { id: 102, caption: "Florian 1/44-1", vehicle_type: 0, building_id: 20, assigned_personnel_count: 9, max_personnel_override: null },
+          { id: 103, caption: "Rettung 2/83-1", vehicle_type: 28, building_id: 21, assigned_personnel_count: 1, max_personnel_override: null }
+        ],
+        paging: { count_total: 3 }
+      },
+      "/api/schoolings": [{ id: 501, caption: "GW-Gefahrgut Lehrgang", building_caption: "Feuerwehrschule", start_at: "2026-09-03T08:00:00Z", finish_at: "2026-09-06T08:00:00Z", participants_count: 8 }],
+      "/api/v1/vehicle_distances.json": { result: [{ vehicle_id: 101, distance_km: 1234.5, distance_km_30d: 18.2 }, { vehicle_id: 102, distance_km: 8210, distance_km_30d: 920 }, { vehicle_id: 103, distance_km: 4400, distance_km_30d: 310 }] },
+      "https://api.lss-manager.de/de_DE/vehicles": {
+        "0": { caption: "LF 20", staff: { min: 1, max: 9 } },
+        "27": { caption: "GW-Gefahrgut", staff: { min: 1, max: 3, training: { Feuerwehr: { gw_gefahrgut: { all: true } } } } },
+        "28": { caption: "RTW", staff: { min: 1, max: 2, training: { Rettungsdienst: { rettungsdienst: { all: true } } } } }
+      },
+      "https://api.lss-manager.de/de_DE/buildings": {
+        "0": { caption: "Feuerwache", schoolingTypes: ["Feuerwehr"], extensions: [{ id: 0, caption: "Rettungsdienst-Erweiterung" }, { id: 1, caption: "Wasserrettung" }, { id: 2, caption: "Werkfeuerwehr" }] },
+        "1": { caption: "Feuerwehrschule", school: "Feuerwehr" },
+        "2": { caption: "Rettungswache", schoolingTypes: ["Rettungsdienst"] },
+        "7": { caption: "Leitstelle" }
+      },
+      "https://api.lss-manager.de/de_DE/schoolings": {
+        Feuerwehr: [{ key: "gw_gefahrgut", caption: "GW-Gefahrgut Lehrgang", duration: "3 Tage" }],
+        Rettungsdienst: [{ key: "rettungsdienst", caption: "Rettungsdienst-Ausbildung", duration: "3 Tage" }]
+      }
+    };
+    // Belastungstest: ?big=900 erzeugt 900 Wachen mit je mehreren Fahrzeugen in ganz Österreich,
+    // ?districts=<URL> lädt echte Bezirksgrenzen statt des Mini-Polygons.
+    const testParams = new URLSearchParams(location.search);
+    if (testParams.has("big")) {
+      let seed = 42;
+      const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      const count = Number(testParams.get("big")) || 900;
+      const bigBuildings = [];
+      for (let index = 0; index < 12; index += 1) {
+        bigBuildings.push({ id: 5000 + index, caption: `Leitstelle ${index + 1}`, building_type: 7, latitude: 46.6 + random() * 2.2, longitude: 9.8 + random() * 7, personal_count: 0, enabled: true, extensions: [] });
+      }
+      for (let index = 0; index < count; index += 1) {
+        const rescue = index % 4 === 0;
+        bigBuildings.push({ id: 100 + index, caption: `${rescue ? "Rettungswache" : "Feuerwache"} ${index + 1}`, building_type: rescue ? 2 : 0, leitstelle_building_id: 5000 + (index % 12), latitude: 46.6 + random() * 2.2, longitude: 9.8 + random() * 7, personal_count: 10 + Math.floor(random() * 30), personal_count_target: 30, enabled: random() > 0.05, extensions: rescue ? [] : [{ type_id: 0, caption: "Rettungsdienst-Erweiterung", enabled: random() > 0.5 }] });
+      }
+      const bigVehicles = [];
+      for (const building of bigBuildings.filter((entry) => entry.building_type !== 7)) {
+        const types = building.building_type === 2 ? [28, 28] : [0, 0, 27, 0];
+        for (const type of types) bigVehicles.push({ id: 100000 + bigVehicles.length, caption: `Fahrzeug ${bigVehicles.length + 1}`, vehicle_type: type, building_id: building.id, assigned_personnel_count: Math.floor(random() * 9), max_personnel_override: null });
+      }
+      mocks["/api/buildings"] = bigBuildings;
+      mocks["/api/v2/vehicles?limit=10000"] = { result: bigVehicles, paging: { count_total: bigVehicles.length } };
+      mocks["/api/v1/vehicle_distances.json"] = { result: bigVehicles.map((vehicle) => ({ vehicle_id: vehicle.id, distance_km: Math.round(random() * 9000), distance_km_30d: Math.round(random() * 900) })) };
+    }
+    let realDistricts = null;
+    if (testParams.get("districts")) {
+      const request = new XMLHttpRequest();
+      request.open("GET", testParams.get("districts"), false);
+      request.send();
+      realDistricts = request.responseText;
+    }
+    window.GM_getResourceText = (name) => name === "lssfoAustriaDistricts" && realDistricts ? realDistricts : name === "lssfoAustriaDistricts" ? JSON.stringify({
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        properties: { iso: "90001", name: "Innere Stadt" },
+        geometry: { type: "Polygon", coordinates: [[[16.34, 48.18], [16.42, 48.18], [16.42, 48.26], [16.34, 48.26], [16.34, 48.18]]] }
+      }]
+    }) : "";
+    let mockSecondPersonAssigned = false;
+    window.fetch = async (input, options = {}) => {
+      const key = typeof input === "string" ? input : input.url;
+      const pathname = new URL(key, location.origin).pathname;
+      if (pathname === "/vehicles/101/edit") {
+        return new Response('<form action="/vehicles/101" method="post"><input name="authenticity_token" value="test"><input id="vehicle_caption" name="vehicle[caption]" value="Florian 1/46-1"><select id="vehicle_personal_max" name="vehicle[personal_max]"><option value="0">Standard</option><option value="3" selected>3</option></select></form>', { status: 200 });
+      }
+      if (pathname === "/buildings/20/edit") {
+        return new Response('<form action="/buildings/20" method="post"><input name="authenticity_token" value="test"><input id="building_caption" name="building[caption]" value="Feuerwache Innenstadt"><select name="building[leitstelle_building_id]"><option value="">Ohne Leitstelle</option><option value="30" selected>Leitstelle Wien</option></select></form>', { status: 200 });
+      }
+      if (pathname === "/personnel/2/assign") {
+        mockSecondPersonAssigned = true;
+        return new Response("ok", { status: 200 });
+      }
+      if (pathname === "/personnel/2/remove") {
+        mockSecondPersonAssigned = false;
+        return new Response("ok", { status: 200 });
+      }
+      if (pathname === "/vehicles/101/zuweisung") {
+        const secondButton = mockSecondPersonAssigned
+          ? '<a class="btn-assigned" personal_id="2" href="/personnel/2/remove">Entfernen</a>'
+          : '<a class="btn-success" personal_id="2" href="/personnel/2/assign">Zuweisen</a>';
+        return new Response(`<meta name="csrf-token" content="test"><table><tbody>
+          <tr id="personal_2" data-filterable-by="[&quot;gw_gefahrgut&quot;]"><td>Erika Beispiel</td><td></td><td></td><td>${secondButton}</td></tr>
+          <tr id="personal_1" data-filterable-by="[&quot;gw_gefahrgut&quot;]"><td>Max Muster</td><td></td><td><a href="/vehicles/101">Fahrzeug</a></td><td><a class="btn-assigned" personal_id="1" href="/personnel/1/remove">Entfernen</a></td></tr>
+        </tbody></table>`, { status: 200 });
+      }
+      if (pathname === "/buildings/20/personals") {
+        return new Response(`<table id="personal_table"><tbody>
+          <tr data-filterable-by='["gw_gefahrgut","rettungsdienst"]'><td><input class="personal-delete-checkbox" value="1"></td><td>Max Muster</td><td>GW-Gefahrgut, Rettungsdienst</td><td></td><td>Verfügbar</td></tr>
+          <tr data-filterable-by='["gw_gefahrgut","rettungsdienst"]'><td><input class="personal-delete-checkbox" value="2"></td><td>Erika Beispiel</td><td>GW-Gefahrgut, Rettungsdienst</td><td></td><td>Verfügbar</td></tr>
+          <tr data-filterable-by='["gw_gefahrgut"]'><td><input class="personal-delete-checkbox" value="3"></td><td>Luisa Beispiel</td><td>GW-Gefahrgut</td><td></td><td>Verfügbar</td></tr>
+          <tr data-filterable-by='["gw_gefahrgut"]'><td><input class="personal-delete-checkbox" value="4"></td><td>Manuel Beispiel</td><td>GW-Gefahrgut</td><td></td><td>Verfügbar</td></tr>
+        </tbody></table>`, { status: 200 });
+      }
+      if (pathname === "/buildings/21/personals") {
+        return new Response(`<table id="personal_table"><tbody>
+          <tr data-filterable-by="[]"><td><input class="personal-delete-checkbox" value="5"></td><td>Melina Beispiel</td><td>Keine Ausbildung</td><td></td><td>Verfügbar</td></tr>
+          <tr data-filterable-by="[]"><td><input class="personal-delete-checkbox" value="6"></td><td>Patrick Beispiel</td><td>Keine Ausbildung</td><td></td><td>Verfügbar</td></tr>
+        </tbody></table>`, { status: 200 });
+      }
+      if (pathname === "/buildings/20/active") {
+        mocks["/api/buildings"][0].enabled = !mocks["/api/buildings"][0].enabled;
+        return new Response("ok", { status: 200 });
+      }
+      if ((pathname === "/vehicles/101" || pathname === "/buildings/20") && String(options.method).toUpperCase() === "POST") {
+        return new Response("ok", { status: 200 });
+      }
+      if (pathname === "/buildings/new") {
+        return new Response(`<form id="new_building" action="/buildings" method="post"><input name="authenticity_token" value="test">
+          <label for="building_building_type">Typ</label><select id="building_building_type" name="building[building_type]"><option value="0">Feuerwache</option><option value="18">Feuerwache (Kleinwache)</option><option value="2">Rettungswache</option><option value="7">Leitstelle</option></select>
+          <input id="building_name" name="building[name]" maxlength="40" value="">
+          <select id="building_leitstelle_building_id" name="building[leitstelle_building_id]"><option value="">Keine</option><option value="30">Leitstelle Wien</option></select>
+          <label for="building_start_vehicle">Startfahrzeug</label><select id="building_start_vehicle" name="building[start_vehicle_feuerwache]"><option value="30">HLF 20</option><option value="0">LF 20</option></select>
+          <input type="hidden" name="building[latitude]" value=""><input type="hidden" name="building[longitude]" value=""><input type="hidden" name="building[address]" value="">
+          <input type="submit" name="build_with_coins" value="Mit Coins bauen"><input type="submit" name="build_with_credits" value="Mit Credits bauen"></form>`, { status: 200 });
+      }
+      if (pathname === "/buildings" && String(options.method).toUpperCase() === "POST") {
+        const body = new URLSearchParams(String(options.body));
+        if (!body.has("build_with_credits") || body.has("build_with_coins")) return new Response('<div class="alert alert-danger">Falscher Bau-Knopf</div>', { status: 200 });
+        window.lastBuildRequest = Object.fromEntries(body);
+        mocks["/api/buildings"].push({ id: 40 + mocks["/api/buildings"].length, caption: body.get("building[name]"), building_type: Number(body.get("building[building_type]")), leitstelle_building_id: Number(body.get("building[leitstelle_building_id]")) || null, latitude: Number(body.get("building[latitude]")), longitude: Number(body.get("building[longitude]")), personal_count: 0, enabled: true, extensions: [] });
+        return new Response("ok", { status: 200 });
+      }
+      if (pathname === "/api/buildings") {
+        return new Response(JSON.stringify(mocks["/api/buildings"]), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+      if (!(key in mocks)) return new Response("Nicht gefunden", { status: 404 });
+      return new Response(JSON.stringify(mocks[key]), { status: 200, headers: { "Content-Type": "application/json" } });
+    };
+  </script>
+  <script>
+    const userscriptMode = new URLSearchParams(location.search).has("userscript");
+    const firstScript = document.createElement("script");
+    firstScript.src = userscriptMode ? "../dist/lss-verwaltung.user.js" : "../core.js";
+    if (!userscriptMode) {
+      const loadInOrder = (sources) => {
+        if (!sources.length) return;
+        const script = document.createElement("script");
+        script.src = sources[0];
+        script.addEventListener("load", () => loadInOrder(sources.slice(1)));
+        document.body.appendChild(script);
+      };
+      firstScript.addEventListener("load", () => loadInOrder(["../content.js"]));
+    }
+    document.body.appendChild(firstScript);
+  </script>
+</body>
+</html>

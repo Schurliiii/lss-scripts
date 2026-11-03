@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "LSS Verwaltung",
+  "version": "1.3.0",
+  "description": "Fuhrpark, Personal, Wachen, Ausbildungen und Ausbauten in Leitstellenspiel.de auf einen Blick – mit Bearbeitung direkt im Panel.",
+  "host_permissions": [
+    "https://www.leitstellenspiel.de/*",
+    "https://leitstellenspiel.de/*",
+    "https://polizei.leitstellenspiel.de/*",
+    "https://api.lss-manager.de/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.leitstellenspiel.de/*",
+        "https://leitstellenspiel.de/*",
+        "https://polizei.leitstellenspiel.de/*"
+      ],
+      "js": [
+        "core.js",
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "128": "assets/icon.png"
+  }
+}

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Interaktive Planungskarte für realistische Feuerwehr- und Rettungswachen in Leitstellenspiel."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <title>LSS Wachenplaner Österreich</title>
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link rel="preconnect" href="https://server.arcgisonline.com" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" crossorigin="" />
+    <link rel="stylesheet" href="styles.css?v=8" />
+  </head>
+  <body>
+    <div class="app" id="app">
+      <div id="map" aria-label="Karte der Feuerwehr- und Rettungswachen"></div>
+
+      <aside class="sheet glass" id="sidebar" aria-label="Wachenplaner">
+        <button class="sheet-handle" id="sheetHandle" type="button" aria-label="Bereich ein- oder ausklappen"><span></span></button>
+
+        <header class="sheet-head">
+          <span class="app-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+          <div>
+            <h1>Wachenplaner</h1>
+            <p>Feuerwehr &amp; Rettung · Österreich</p>
+          </div>
+          <button class="icon-button" id="infoButton" type="button" aria-label="Informationen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>
+          </button>
+        </header>
+
+        <form class="search-field" id="searchForm" role="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
+          <label class="sr-only" for="searchInput">Ort oder Adresse suchen</label>
+          <input id="searchInput" type="search" placeholder="Ort oder Adresse suchen" autocomplete="off" enterkeyhint="search" />
+        </form>
+
+        <div class="segmented" role="tablist" aria-label="Ansicht">
+          <span class="segmented-thumb" aria-hidden="true"></span>
+          <button type="button" role="tab" class="is-active" data-view="filters" aria-selected="true">Filter</button>
+          <button type="button" role="tab" data-view="missing" aria-selected="false">Noch nicht gebaut <b id="missingBadge" hidden>0</b></button>
+        </div>
+
+        <div class="sheet-scroll">
+          <section class="view is-active" data-view-panel="filters">
+            <div class="card sync-card" id="syncCard">
+              <div class="sync-head">
+                <span class="sync-dot" id="syncDot"></span>
+                <div>
+                  <strong id="syncTitle">Nicht mit dem Spiel verbunden</strong>
+                  <small id="syncHint">Gleiche deine Wachen ab, um zu sehen, was noch fehlt.</small>
+                </div>
+              </div>
+              <div class="progress" id="syncProgress" hidden>
+                <div class="progress-bar"><span id="syncProgressBar"></span></div>
+                <small id="syncProgressText"></small>
+              </div>
+              <div class="button-row">
+                <button class="button primary" id="syncButton" type="button">Mit Leitstellenspiel abgleichen</button>
+                <label class="button ghost" title="Gespeicherte /api/buildings-Datei importieren">
+                  Datei
+                  <input id="importInput" type="file" accept=".json,application/json" hidden />
+                </label>
+              </div>
+              <label class="range-row" id="radiusRow">
+                <span>Als gebaut gilt eine Wache im Umkreis von <b id="radiusLabel">300 m</b></span>
+                <input id="radiusInput" type="range" min="100" max="1500" step="50" value="300" />
+              </label>
+            </div>
+
+            <div class="group-title">Status</div>
+            <div class="segmented small" id="statusFilter" aria-label="Baustatus">
+              <span class="segmented-thumb" aria-hidden="true"></span>
+              <button type="button" class="is-active" data-status="all">Alle</button>
+              <button type="button" data-status="missing">Fehlt</button>
+              <button type="button" data-status="built">Gebaut</button>
+            </div>
+
+            <div class="group-title">
+              Gebiet
+              <button class="link-button" id="clearArea" type="button">Zurücksetzen</button>
+            </div>
+            <div class="card list-card">
+              <label class="select-row">
+                <span>Bundesland</span>
+                <select id="stateFilter"><option value="">Alle</option></select>
+              </label>
+              <label class="select-row">
+                <span>Bezirk</span>
+                <select id="districtFilter" disabled><option value="">Alle</option></select>
+              </label>
+            </div>
+
+            <div class="group-title">
+              Organisationen
+              <button class="link-button" id="selectAll" type="button">Alle aus</button>
+            </div>
+            <div class="card list-card filters" id="orgFilters"></div>
+          </section>
+
+          <section class="view" data-view-panel="missing">
+            <div class="missing-head">
+              <div>
+                <strong id="missingTitle">Noch nicht abgeglichen</strong>
+                <small id="missingHint">Starte zuerst den Abgleich mit dem Spiel.</small>
+              </div>
+            </div>
+            <div class="progress-ring-row" id="coverageRow" hidden>
+              <div class="coverage-bar"><span id="coverageBar"></span></div>
+              <small id="coverageText"></small>
+            </div>
+            <ul class="missing-list" id="missingList"></ul>
+            <button class="button ghost wide" id="missingMore" type="button" hidden>Mehr anzeigen</button>
+          </section>
+        </div>
+
+        <footer class="sheet-foot">
+          <span class="status-dot" id="loadDot"></span>
+          <span id="loadState" role="status">Karte wird vorbereitet …</span>
+        </footer>
+      </aside>
+
+      <div class="map-controls">
+        <button class="icon-button glass" id="zoomIn" type="button" aria-label="Hineinzoomen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+        </button>
+        <button class="icon-button glass" id="zoomOut" type="button" aria-label="Herauszoomen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
+        </button>
+        <button class="icon-button glass" id="homeButton" type="button" aria-label="Ganz Österreich anzeigen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h13V9.5" /></svg>
+        </button>
+      </div>
+
+      <label class="map-switch glass" id="hideBuiltControl" hidden>
+        <span>Nur fehlende</span>
+        <input class="switch" id="hideBuiltToggle" type="checkbox" aria-label="Gebaute Wachen ausblenden" />
+      </label>
+
+      <div class="map-pill glass" id="mapSummary" aria-live="polite">
+        <span><strong id="visibleCount">0</strong> sichtbar</span>
+        <span class="pill-missing" id="pillMissing" hidden><i></i><strong id="visibleMissing">0</strong> fehlen</span>
+      </div>
+
+      <div class="toast glass" id="toast" role="status" aria-live="polite"></div>
+    </div>
+
+    <dialog id="infoDialog" class="glass-dialog">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">Über die Karte</p>
+          <h2>Planungshilfe, kein Einsatzsystem</h2>
+        </div>
+        <button class="icon-button" id="closeInfo" type="button" aria-label="Schließen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+      </div>
+      <p>
+        Die Standorte stammen aus dem österreichweiten Digitalen Landschaftsmodell „Bauten“ des Bundesamts für
+        Eich- und Vermessungswesen (BEV), Stichtag 23.03.2026. Die Kategorien werden direkt aus den amtlichen
+        Merkmalen „Art“ und „Betreiber“ übernommen.
+      </p>
+      <p>
+        <b>Abgleich:</b> „Mit Leitstellenspiel abgleichen“ öffnet das Spiel in einem neuen Tab. Das Userscript
+        „LSS Wachenplaner Österreich“ fragt dort nach deiner Erlaubnis und schickt nur Name, Typ und Position deiner Gebäude an
+        diese Seite. Alternativ kannst du <code>leitstellenspiel.de/api/buildings</code> speichern und als Datei importieren.
+      </p>
+      <p>
+        Bei einem echten Notfall: Feuerwehr <strong>122</strong>, Rettung <strong>144</strong>, Euro-Notruf <strong>112</strong>.
+      </p>
+      <div class="source-links">
+        <a href="https://doi.org/10.48677/7f992cd7-2f5c-42d9-b9d4-22f23c180bcb" target="_blank" rel="noreferrer">BEV-Datensatz &amp; Lizenz ↗</a>
+        <a href="https://www.bev.gv.at/Services/Produkte/Digitales-Landschaftsmodell/Bauten.html" target="_blank" rel="noreferrer">BEV-DLM Informationen ↗</a>
+        <a href="https://data.statistik.gv.at/web/meta.jsp?dataset=OGDEXT_POLBEZ_1" target="_blank" rel="noreferrer">Politische Bezirke 2026 ↗</a>
+        <a href="https://www.leitstellenspiel.de/api/buildings" target="_blank" rel="noreferrer">Meine Gebäude (JSON) ↗</a>
+      </div>
+    </dialog>
+
+    <template id="popupTemplate">
+      <article class="station-popup">
+        <header>
+          <span class="popup-glyph"></span>
+          <div>
+            <p class="popup-kicker"></p>
+            <h3 class="popup-title"></h3>
+          </div>
+        </header>
+        <div class="popup-status"></div>
+        <dl>
+          <div><dt>Adresse</dt><dd class="popup-address"></dd></div>
+          <div><dt>Gebiet</dt><dd class="popup-region"></dd></div>
+          <div><dt>Im Spiel</dt><dd class="popup-game"></dd></div>
+        </dl>
+        <div class="popup-actions">
+          <button class="button primary popup-build" type="button">Im Leitstellenspiel bauen</button>
+          <div class="popup-secondary">
+            <button class="button ghost copy-button" type="button">Koordinaten kopieren</button>
+            <a class="button ghost osm-link" target="_blank" rel="noreferrer">Karte ↗</a>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
+    <script src="official-data.js?v=20260323-2"></script>
+    <script src="regions.js?v=20260101"></script>
+    <script src="app.js?v=18"></script>
+  </body>
+</html>
