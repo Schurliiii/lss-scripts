@@ -535,19 +535,43 @@
       });
     }
     const response = await fetch(url, { credentials: "include", headers: { Accept: "application/json" } });
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText} (${url})`);
+    if (!response.ok) {
+      const error = new Error(`${response.status} ${response.statusText} (${url})`);
+      error.status = response.status;
+      throw error;
+    }
     return response.json();
   }
 
-  async function fetchAllVehicles() {
-    let url = "/api/v2/vehicles?limit=10000";
-    const result = [];
-    while (url) {
-      const page = await fetchJson(url);
-      result.push(...(page.result || []));
-      url = page.paging?.next_page || "";
+  // Überlastung (429/5xx) ist bei der LSS-API meist vorübergehend: mit wachsender Pause erneut versuchen.
+  async function fetchJsonWithRetry(url, attempts = 4) {
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        return await fetchJson(url);
+      } catch (error) {
+        const retryable = error.status === 429 || error.status >= 500;
+        if (!retryable || attempt >= attempts) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 1000 * 2 ** (attempt - 1)));
+      }
     }
-    return result;
+  }
+
+  // Fahrzeuge seitenweise laden: große Seiten (limit=10000) beantwortet der Server bei vielen
+  // Fahrzeugen mit 503. Die API liefert in paging.next_page die URL der Folgeseite.
+  const VEHICLE_PAGE_SIZE = 1000;
+
+  async function fetchAllVehicles() {
+    let url = `/api/v2/vehicles?limit=${VEHICLE_PAGE_SIZE}`;
+    const seenUrls = new Set();
+    const vehiclesById = new Map();
+    while (url && !seenUrls.has(url)) {
+      seenUrls.add(url);
+      const page = await fetchJsonWithRetry(url);
+      for (const vehicle of page.result || []) vehiclesById.set(vehicle.id, vehicle);
+      url = page.paging?.next_page || "";
+      if (url) await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+    return [...vehiclesById.values()];
   }
 
   function openDatabase() {

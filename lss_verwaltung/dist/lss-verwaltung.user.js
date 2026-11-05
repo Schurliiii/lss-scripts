@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LSS Verwaltung
 // @namespace    https://github.com/Schurliiii/lss-scripts
-// @version      1.3.3
+// @version      1.3.4
 // @description  Fuhrpark, Personal, Wachen, Ausbildungen und Ausbauten in Leitstellenspiel.de auf einen Blick – mit Bearbeitung direkt im Panel.
 // @author       Schurliiii
 // @icon         data:image/png;base64,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
@@ -718,19 +718,43 @@
       });
     }
     const response = await fetch(url, { credentials: "include", headers: { Accept: "application/json" } });
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText} (${url})`);
+    if (!response.ok) {
+      const error = new Error(`${response.status} ${response.statusText} (${url})`);
+      error.status = response.status;
+      throw error;
+    }
     return response.json();
   }
 
-  async function fetchAllVehicles() {
-    let url = "/api/v2/vehicles?limit=10000";
-    const result = [];
-    while (url) {
-      const page = await fetchJson(url);
-      result.push(...(page.result || []));
-      url = page.paging?.next_page || "";
+  // Überlastung (429/5xx) ist bei der LSS-API meist vorübergehend: mit wachsender Pause erneut versuchen.
+  async function fetchJsonWithRetry(url, attempts = 4) {
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        return await fetchJson(url);
+      } catch (error) {
+        const retryable = error.status === 429 || error.status >= 500;
+        if (!retryable || attempt >= attempts) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 1000 * 2 ** (attempt - 1)));
+      }
     }
-    return result;
+  }
+
+  // Fahrzeuge seitenweise laden: große Seiten (limit=10000) beantwortet der Server bei vielen
+  // Fahrzeugen mit 503. Die API liefert in paging.next_page die URL der Folgeseite.
+  const VEHICLE_PAGE_SIZE = 1000;
+
+  async function fetchAllVehicles() {
+    let url = `/api/v2/vehicles?limit=${VEHICLE_PAGE_SIZE}`;
+    const seenUrls = new Set();
+    const vehiclesById = new Map();
+    while (url && !seenUrls.has(url)) {
+      seenUrls.add(url);
+      const page = await fetchJsonWithRetry(url);
+      for (const vehicle of page.result || []) vehiclesById.set(vehicle.id, vehicle);
+      url = page.paging?.next_page || "";
+      if (url) await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+    return [...vehiclesById.values()];
   }
 
   function openDatabase() {
