@@ -5,7 +5,7 @@ Zwei unabhängige Tampermonkey-Scripts für [leitstellenspiel.de](https://www.le
 | | Script | Wofür | Installieren |
 |---|---|---|---|
 | <img src="lss_verwaltung/assets/icon.png" width="32" alt=""> | **LSS Verwaltung** | Fuhrpark, Personal, Wachen, Ausbildungen, Ausbauten, Auslastung und Karte auf einen Blick – mit Bearbeitung direkt im Panel. Für alle Spieler. | [**Installieren**](https://raw.githubusercontent.com/Schurliiii/lss-scripts/main/lss_verwaltung/dist/lss-verwaltung.user.js) |
-| <img src="lss_einsatzkarte/assets/icon.png" width="32" alt=""> | **LSS Wachenplaner Österreich** | Alle echten Feuerwehr- und Rettungsstandorte (5.563), Polizeiinspektionen (812) und Akutspitäler (125) Österreichs: zeigt, welche du schon gebaut hast, welche fehlen, und baut fehlende per Klick. | [**Installieren**](https://raw.githubusercontent.com/Schurliiii/lss-scripts/main/lss_einsatzkarte/dist/lss-wachenplaner.user.js) |
+| <img src="lss_einsatzkarte/assets/icon.png" width="32" alt=""> | **LSS Wachenplaner Österreich** | Alle echten Feuerwehr- und Rettungsstandorte (5.537), Polizeiinspektionen (797) und Akutspitäler (125) Österreichs: zeigt, welche du schon gebaut hast, welche fehlen, und baut fehlende per Klick. | [**Installieren**](https://raw.githubusercontent.com/Schurliiii/lss-scripts/main/lss_einsatzkarte/dist/lss-wachenplaner.user.js) |
 
 ## Installation
 

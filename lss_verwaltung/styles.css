@@ -51,7 +51,7 @@ body > #lssfo-launcher { position:fixed; top:58px; right:12px; z-index:99997; di
 .lssfo-header { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 20px 10px 22px; }
 .lssfo-header-copy { display:flex; min-width:0; align-items:center; gap:13px; }
 .lssfo-brand-mark { display:grid; width:42px; height:42px; flex:0 0 auto; place-items:center; border-radius:12px; color:#fff; background:linear-gradient(160deg,#ff6259,#e0241a); box-shadow:0 6px 16px rgba(229,37,27,.32); }
-.lssfo-brand-mark .lssfo-icon { width:22px; height:22px; }
+.lssfo-brand-mark .lssfo-icon { width:20px; height:20px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.2)); }
 .lssfo-header h1 { margin:0; color:var(--text); font-size:24px; font-weight:700; letter-spacing:-.022em; line-height:1.15; }
 .lssfo-header p { margin:2px 0 0; color:var(--muted); font-size:13px; }
 .lssfo-header-actions { display:flex; flex:0 0 auto; align-items:center; gap:8px; }
@@ -403,6 +403,8 @@ body > #lssfo-launcher { position:fixed; top:58px; right:12px; z-index:99997; di
 }
 
 /* Spielseiten (Wache, Personal, Fahrzeug) direkt im Panel. */
+html.lssfo-lightbox-front #lightbox_background { z-index:100049 !important; }
+html.lssfo-lightbox-front #lightbox_box { z-index:100050 !important; }
 .lssfo-game-view-actions { display:flex; gap:6px; }
 .lssfo-game-view-actions .lssfo-icon-btn { font-size:20px; line-height:1; }
 a.lssfo-btn { text-decoration:none; }

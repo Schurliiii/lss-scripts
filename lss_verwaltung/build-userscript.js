@@ -14,7 +14,7 @@ const metadata = [
   "// ==UserScript==",
   "// @name         LSS Verwaltung",
   `// @namespace    ${release.namespace("local.lss-verwaltung")}`,
-  "// @version      1.3.6",
+  "// @version      1.3.7",
   "// @description  Fuhrpark, Personal, Wachen, Ausbildungen und Ausbauten in Leitstellenspiel.de auf einen Blick – mit Bearbeitung direkt im Panel.",
   "// @author       Schurliiii",
   ...release.iconLines(path.join(projectDir, "assets")),

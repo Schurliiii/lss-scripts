@@ -42,6 +42,18 @@ for (const station of OFFICIAL_STATIONS) {
   seen.set(key, station.id);
 }
 
+// Ein LSS-Gebäude deckt einen Standort ab: keine zwei Standorte gleicher Art im selben Gebäude (≤ 25 m).
+const byLat = [...OFFICIAL_STATIONS].sort((a, b) => a.lat - b.lat);
+for (let index = 0; index < byLat.length; index += 1) {
+  for (let other = index + 1; other < byLat.length && byLat[other].lat - byLat[index].lat < 0.0003; other += 1) {
+    const a = byLat[index];
+    const b = byLat[other];
+    if (a.tags.amenity !== b.tags.amenity || a.tags.amenity === "hospital") continue;
+    const meters = Math.hypot((b.lat - a.lat) * 111320, (b.lon - a.lon) * 111320 * Math.cos(a.lat * Math.PI / 180));
+    assert.ok(meters > 25, `zwei Standorte im selben Gebäude: ${a.tags.name} / ${b.tags.name}`);
+  }
+}
+
 // Krankenhäuser: eindeutige Namen, plausible Anzahl, Pflichtstandorte vorhanden.
 const hospitals = OFFICIAL_STATIONS.filter((station) => station.tags["bev:class"] === "hospital");
 const hospitalNames = hospitals.map((station) => station.tags.name);

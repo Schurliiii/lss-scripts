@@ -265,6 +265,55 @@ def build_hospitals(args, corrections, medical, srid, report):
     return hospitals
 
 
+COLOCATED_DISTANCE = 25
+
+
+def merge_colocated(records, report):
+    """Standorte gleicher Art im selben Gebäude (≤ 25 m) sind in LSS ein einziges Gebäude:
+    z. B. PI und Verkehrsinspektion an einer Adresse oder zwei Feuerwehren in einem Feuerwehrhaus."""
+    fire_rank = {"fire-professional": 0, "fire-volunteer": 1, "fire-other": 2}
+    records = sorted(records, key=lambda record: record["lat"])
+    dropped = set()
+    for index, record in enumerate(records):
+        # Krankenhäuser sind eigenständige Häuser, auch auf demselben Gelände.
+        if record["id"] in dropped or record["tags"]["amenity"] == "hospital":
+            continue
+        group = [record]
+        for other_index in range(index + 1, len(records)):
+            other = records[other_index]
+            if other["lat"] - record["lat"] > 0.0004:
+                break
+            if other["id"] not in dropped and other["tags"]["amenity"] == record["tags"]["amenity"] and haversine(record, other) <= COLOCATED_DISTANCE:
+                group.append(other)
+        if len(group) < 2:
+            continue
+        amenity = record["tags"]["amenity"]
+        names = [entry["tags"]["name"] for entry in group]
+        if amenity == "police":
+            group.sort(key=lambda entry: (entry["tags"]["bev:class"] != "police", entry["tags"]["name"].startswith("PI ") is False, entry["id"]))
+            primary = group[0]
+            extra = []
+            for entry in group[1:]:
+                short = entry["tags"]["name"].split(" ")[0]
+                if short not in extra and short != primary["tags"]["name"].split(" ")[0]:
+                    extra.append(short)
+            name = primary["tags"]["name"] + (f" + {' + '.join(extra)}" if extra else "")
+        elif amenity == "ambulance_station":
+            group.sort(key=lambda entry: (not entry.get("_renamed"), not re.match(r"Bezirks", entry["tags"]["name"]), entry["id"]))
+            primary = group[0]
+            name = primary["tags"]["name"]
+        else:
+            group.sort(key=lambda entry: (fire_rank.get(entry["tags"]["bev:class"], 9), not re.match(r"Berufsfeuerwehr|Hauptwache", entry["tags"]["name"]), entry["id"]))
+            primary = group[0]
+            own_name = primary["tags"]["bev:class"] == "fire-professional" and re.match(r"Berufsfeuerwehr|Hauptwache", primary["tags"]["name"])
+            name = primary["tags"]["name"] if own_name else " / ".join(dict.fromkeys(entry["tags"]["name"] for entry in group))
+        primary["tags"]["name"] = name
+        for entry in group[1:]:
+            dropped.add(entry["id"])
+        report.setdefault("colocated", []).append({"kept": primary["id"], "removed": [entry["id"] for entry in group[1:]], "names": names, "name": name})
+    return sorted((record for record in records if record["id"] not in dropped), key=lambda record: record["id"])
+
+
 POLICE_ABBREVIATION = {
     "Polizeiinspektion": "PI",
     "Autobahnpolizeiinspektion": "API",
@@ -380,6 +429,7 @@ def main():
             raise SystemExit(f"rename: id {entry['id']} nicht gefunden")
         report.setdefault("renamed", []).append({"id": entry["id"], "from": record["tags"]["name"], "to": entry["name"]})
         record["tags"]["name"] = entry["name"]
+        record["_renamed"] = True
     for entry in corrections.get("relocate", []):
         record = by_id.get(entry["id"])
         if record is None:
@@ -426,7 +476,8 @@ def main():
     for index, record in enumerate(records):
         if record["id"] in dropped:
             continue
-        for other in records[index + 1:]:
+        for other_index in range(index + 1, len(records)):
+            other = records[other_index]
             if other["lat"] - record["lat"] > 0.001:
                 break
             if other["id"] in dropped or other["tags"]["amenity"] != record["tags"]["amenity"]:
@@ -441,6 +492,10 @@ def main():
             if drop is record:
                 break
     records = sorted((record for record in records if record["id"] not in dropped), key=lambda record: record["id"])
+
+    records = merge_colocated(records, report)
+    for record in records:
+        record.pop("_renamed", None)
 
     districts = load_districts(args.districts)
     for record in records:

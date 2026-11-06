@@ -44,7 +44,7 @@ const metadata = [
   "// ==UserScript==",
   "// @name         LSS Wachenplaner Österreich",
   `// @namespace    ${release.namespace("local.lss-wachenplaner")}`,
-  "// @version      1.2.0",
+  "// @version      1.2.1",
   "// @description  Alle echten Feuerwehr-, Rettungs- und Polizeistandorte und Akutspitäler Österreichs direkt in Leitstellenspiel.de: zeigt gebaute und fehlende Standorte und baut fehlende per Klick.",
   "// @author       Schurliiii",
   ...release.iconLines(path.join(projectDir, "assets")),

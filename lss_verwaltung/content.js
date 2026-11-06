@@ -76,7 +76,7 @@
   launcher.type = "button";
   launcher.title = "LSS Verwaltung öffnen";
   launcher.setAttribute("aria-label", "LSS Verwaltung öffnen");
-  launcher.innerHTML = `<svg class="lssfo-icon lssfo-launcher-glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor"><rect x="3" y="3" width="8" height="10" rx="2"/><rect x="13" y="3" width="8" height="6" rx="2"/><rect x="13" y="11" width="8" height="10" rx="2"/><rect x="3" y="15" width="8" height="6" rx="2"/></svg><span>LSS Verwaltung</span>`;
+  launcher.innerHTML = `${appGlyph("lssfo-launcher-glyph")}<span>LSS Verwaltung</span>`;
   launcher.addEventListener("click", openDashboard);
   // Das Symbol gehört nur in die Navigationsleiste der Hauptseite. Unterseiten wie
   // /buildings/… oder /vehicles/…/zuweisung haben eine andere Leiste (oder keine).
@@ -90,7 +90,7 @@
     <section class="lssfo-panel" role="dialog" aria-modal="true" aria-label="LSS Fuhrpark- und Personalübersicht">
       <header class="lssfo-header">
         <div class="lssfo-header-copy">
-          <span class="lssfo-brand-mark" aria-hidden="true">${icon("app")}</span>
+          <span class="lssfo-brand-mark" aria-hidden="true">${appGlyph()}</span>
           <div><h1>Fuhrpark &amp; Personal</h1><p id="lssfo-subtitle">Noch keine Daten geladen</p></div>
         </div>
         <div class="lssfo-header-actions">
@@ -249,6 +249,7 @@
     }
   });
   document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && document.documentElement.classList.contains("lssfo-lightbox-front")) return;
     if (event.key === "Escape" && state.build) closeBuildDialog();
     else if (event.key === "Escape" && state.gameView) closeGameView();
     else if (event.key === "Escape" && state.courseAssistant) closeCourseAssistant();
@@ -259,7 +260,7 @@
   // LSS ändert Klassen und Stile an <html>/<body> häufig; die Theme-Erkennung
   // läuft deshalb höchstens einmal pro Frame.
   let themeFrame = 0;
-  const ownClasses = /\b(?:lssfo-open|lssfo-standalone|lsswp-open|leaflet-dragging)\b/g;
+  const ownClasses = /\b(?:lssfo-open|lssfo-standalone|lssfo-lightbox-front|lsswp-open|leaflet-dragging)\b/g;
   const themeObserver = new MutationObserver((mutations) => {
     // Eigene Klassen (auch die des Wachenplaners) und Leaflets Zieh-Klasse ändern das Theme nicht.
     const relevant = mutations.some((mutation) => mutation.attributeName !== "class"
@@ -1760,6 +1761,7 @@
   // Zeigt eine Spielseite (Wache, Personal, Fahrzeug) direkt im Panel an – kein neuer Tab.
   // Die Seite ist voll bedienbar; Links darin bleiben im eingebetteten Fenster.
   function openGameView(url, title) {
+    if (openGameLightbox(url)) return;
     const element = shell.querySelector("#lssfo-game-view");
     const kind = /\/personals/.test(url) ? "PERSONAL" : /^\/vehicles\//.test(url) ? "FAHRZEUG" : "WACHE";
     state.gameView = { url };
@@ -1777,6 +1779,36 @@
     monitorEmbeddedFrame(element.querySelector("#lssfo-game-frame"), "Diese Seite lässt sich nicht im Panel anzeigen. Mit Strg-Klick auf den Link öffnet sie sich in einem neuen Tab.");
   }
 
+  // Die Lightbox des Spiels zeigt Wachen-, Personal- und Fahrzeugseiten zuverlässig an
+  // (genau so öffnet sie das Spiel selbst). Sie liegt über dem Panel im selben Fenster.
+  function openGameLightbox(url) {
+    const pageWindow = typeof unsafeWindow !== "undefined" ? unsafeWindow : window;
+    if (typeof pageWindow.lightboxOpen !== "function") return false;
+    try {
+      document.documentElement.classList.add("lssfo-lightbox-front");
+      pageWindow.lightboxOpen(url);
+    } catch {
+      document.documentElement.classList.remove("lssfo-lightbox-front");
+      return false;
+    }
+    // Das Spiel blendet die Lightbox per Inline-Style aus; das zu lesen kostet keine Layoutberechnung.
+    clearInterval(openGameLightbox.watch);
+    openGameLightbox.watch = setInterval(() => {
+      const box = document.getElementById("lightbox_box");
+      if (box && box.style.display !== "none" && !box.hidden) return;
+      clearInterval(openGameLightbox.watch);
+      document.documentElement.classList.remove("lssfo-lightbox-front");
+      afterGameView(url);
+    }, 500);
+    return true;
+  }
+
+  // Nach dem Schließen einer Spielseite: Personalliste dieser Wache neu lesen.
+  function afterGameView(url) {
+    const buildingId = Number(String(url || "").match(/^\/buildings\/(\d+)/)?.[1]);
+    if (buildingId) void refreshBuildingAssignments(buildingId);
+  }
+
   function closeGameView() {
     const element = shell.querySelector("#lssfo-game-view");
     const view = state.gameView;
@@ -1785,9 +1817,7 @@
       element.hidden = true;
       element.innerHTML = "";
     }
-    // Änderungen an Personal oder Fahrzeugbindung sofort übernehmen: Personalliste dieser Wache neu lesen.
-    const buildingId = Number(view?.url.match(/^\/buildings\/(\d+)/)?.[1]);
-    if (buildingId) void refreshBuildingAssignments(buildingId);
+    if (view) afterGameView(view.url);
   }
 
   async function refreshBuildingAssignments(buildingId) {
@@ -2011,13 +2041,33 @@
       try { keys = JSON.parse(row.dataset.filterableBy || "[]"); } catch { keys = []; }
       for (const element of row.querySelectorAll("[data-education-key]")) keys.push(element.dataset.educationKey);
       keys = [...new Set(keys.filter(Boolean))];
-      const cells = row.querySelectorAll("td");
+      const cells = [...row.querySelectorAll("td")];
       const name = cells[0]?.textContent?.trim() || `Person ${id}`;
+      const assigned = Boolean(assignedButton);
+      // Gebunden an ein anderes Fahrzeug: Fahrzeuglink in der Zeile, der nicht auf dieses Fahrzeug zeigt.
+      const vehicleLink = [...row.querySelectorAll('a[href*="/vehicles/"]')]
+        .map((anchor) => ({ anchor, match: (anchor.getAttribute("href") || "").match(/\/vehicles\/(\d+)\/?$/) }))
+        .find((entry) => entry.match && Number(entry.match[1]) !== Number(manager.id));
+      let boundTo = vehicleLink ? { id: Number(vehicleLink.match[1]), caption: vehicleLink.anchor.textContent.trim() || `Fahrzeug ${vehicleLink.match[1]}` } : null;
+      // Ohne Link: Text der Spalte „Zugewiesen an“ (letzte Spalte, ohne Schaltflächen).
+      const statusPattern = /^(verfügbar|frei\b|im fahrzeug|im unterricht|im einsatz|nicht verfügbar|in ausbildung)/i;
+      const lastCell = cells.length >= 4 ? cells[cells.length - 1] : null;
+      if (!boundTo && !assigned && lastCell?.querySelector("a.btn, button, [personal_id]")) {
+        const cell = lastCell.cloneNode(true);
+        cell.querySelectorAll("a, button").forEach((element) => element.remove());
+        const caption = cell.textContent.replace(/\s+/g, " ").trim();
+        if (caption && !statusPattern.test(caption)) boundTo = { id: null, caption };
+      }
+      const statusText = cells.slice(1).map((cell) => cell.textContent.replace(/\s+/g, " ").trim())
+        .find((text) => statusPattern.test(text)) || "";
       return {
         id,
         name,
         keys,
-        assigned: Boolean(assignedButton),
+        assigned,
+        boundTo: assigned ? null : boundTo,
+        status: /unterricht|ausbildung/i.test(statusText) ? "training" : /im fahrzeug|im einsatz|nicht verfügbar/i.test(statusText) ? "busy" : "free",
+        statusText,
         actionHref: actionButton?.getAttribute("href") || "",
         available: Boolean(actionButton),
       };
@@ -2109,19 +2159,44 @@
       </aside>`;
   }
 
+  function personStatusLabel(person) {
+    if (person.assigned) return "zugewiesen";
+    if (person.status === "training") return person.statusText || "im Unterricht";
+    if (person.boundTo) return `an ${person.boundTo.caption}`;
+    if (person.status === "busy") return person.statusText;
+    return "verfügbar";
+  }
+
+  function personStatusCell(person) {
+    if (person.assigned) return badge("zugewiesen", "ok");
+    const extra = person.status === "training" || (person.status === "busy" && !person.boundTo)
+      ? ` <small class="lssfo-muted">${escapeHtml(person.statusText)}</small>` : "";
+    if (person.boundTo) {
+      const target = person.boundTo.id
+        ? `<a href="/vehicles/${person.boundTo.id}" target="_blank" rel="noopener">${escapeHtml(person.boundTo.caption)}</a>`
+        : escapeHtml(person.boundTo.caption);
+      return `${badge("anderes Fahrzeug", "warn")} <small>${target}</small>${extra}`;
+    }
+    if (person.status === "training") return `${badge("im Unterricht", "neutral")}${extra}`;
+    if (person.status === "busy") return /nicht verfügbar/i.test(person.statusText) ? badge("nicht verfügbar", "neutral") : `${badge("unterwegs", "neutral")}${extra}`;
+    return '<span class="lssfo-muted">verfügbar</span>';
+  }
+
   function renderPersonnelTable(manager, requiredKeys, personnelCapacity) {
     if (!manager.personnel.length) return '<div class="lssfo-empty lssfo-empty-small">Kein zuweisbares Personal an dieser Wache gefunden.</div>';
     const targetFull = manager.personnel.filter((person) => person.assigned).length >= personnelCapacity;
     const matchesTraining = (person) => !requiredKeys.length || requiredKeys.some((key) => person.keys.includes(key));
     const selectedSort = state.sorts.personnel;
+    // Zuerst zugewiesen, dann frei, dann an andere Fahrzeuge gebunden, zuletzt in Ausbildung.
+    const personRank = (person) => (person.assigned ? 0 : person.status === "training" ? 3 : person.boundTo ? 2 : 1);
     const sortedPersonnel = [...manager.personnel].sort((a, b) => {
-      const assignedOrder = Number(b.assigned) - Number(a.assigned);
+      const assignedOrder = personRank(a) - personRank(b);
       if (assignedOrder) return assignedOrder;
       if (selectedSort) {
         const personValues = (person) => [
           person.name,
           person.keys.length ? person.keys.map(trainingName).join(", ") : "Keine Ausbildung",
-          person.assigned ? "zugewiesen" : "verfügbar",
+          personStatusLabel(person),
           person.assigned ? "Entfernen" : "Zuweisen",
         ];
         const compared = compareTableValues(personValues(a)[selectedSort.column], personValues(b)[selectedSort.column]);
@@ -2140,8 +2215,8 @@
       return `<tr data-person-row data-search="${escapeHtml(`${person.name} ${educationText}`.toLocaleLowerCase("de"))}"${hidden ? " hidden" : ""}>
         <td><strong>${escapeHtml(person.name)}</strong></td>
         <td>${escapeHtml(educationText)} ${matches && requiredKeys.length ? badge("passend", "ok") : ""}</td>
-        <td>${person.assigned ? badge("zugewiesen", "ok") : '<span class="lssfo-muted">verfügbar</span>'}</td>
-        <td><button type="button" class="lssfo-btn lssfo-btn-small${person.assigned ? " lssfo-btn-danger" : ""}" data-action="person-toggle" data-person-id="${person.id}" ${disabled ? "disabled" : ""}>${manager.savingPerson === person.id ? "Bitte warten …" : action}</button></td>
+        <td>${personStatusCell(person)}</td>
+        <td><button type="button" class="lssfo-btn lssfo-btn-small${person.assigned ? " lssfo-btn-danger" : ""}" data-action="person-toggle" data-person-id="${person.id}" ${disabled ? "disabled" : ""}${person.boundTo ? ` title="Wird von ${escapeHtml(person.boundTo.caption)} abgezogen"` : ""}>${manager.savingPerson === person.id ? "Bitte warten …" : person.boundTo ? "Umsetzen" : action}</button></td>
       </tr>`;
     }).join("");
     return `<div class="lssfo-table-wrap lssfo-personnel-table"><table><thead><tr>${sortableHeaders(["Person", "Ausbildungen", "Status", "Aktion"], "personnel")}</tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -2299,6 +2374,13 @@
         },
       });
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+      const previous = person.boundTo?.id ? state.scans[String(person.boundTo.id)] : null;
+      if (previous && !person.assigned) {
+        previous.assignedRows = Math.max(0, (previous.assignedRows || 0) - 1);
+        for (const key of person.keys) previous.counts[key] = Math.max(0, (previous.counts[key] || 0) - 1);
+        const source = state.vehicles.find((vehicle) => Number(vehicle.id) === person.boundTo.id);
+        if (source) source.assigned_personnel_count = Math.max(0, Number(source.assigned_personnel_count || 0) - 1);
+      }
       const html = await fetchPage(`/vehicles/${manager.id}/zuweisung`);
       parsePersonnelPage(html, manager);
       const assigned = manager.personnel.filter((entry) => entry.assigned);
@@ -3075,6 +3157,11 @@
       "sort-desc": '<path d="m7 10 5 5 5-5"/>',
     };
     return `<svg class="lssfo-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[name] || paths.app}</svg>`;
+  }
+
+  // Markenzeichen der LSS Verwaltung (gefüllte Kacheln) – gleich in Navigationsleiste und Panel-Kopf.
+  function appGlyph(extraClass = "") {
+    return `<svg class="lssfo-icon ${extraClass}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor"><rect x="3" y="3" width="8" height="10" rx="2"/><rect x="13" y="3" width="8" height="6" rx="2"/><rect x="13" y="11" width="8" height="10" rx="2"/><rect x="3" y="15" width="8" height="6" rx="2"/></svg>`;
   }
 
   function badge(value, tone) {
