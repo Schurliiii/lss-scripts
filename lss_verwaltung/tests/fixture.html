@@ -14,6 +14,7 @@
   <div class="mock"><h2>Leitstellenspiel – lokale Testseite</h2><p>Unten rechts die Übersicht öffnen.</p></div>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    window.LSS_TEST_PAGE = true; // Testseite gilt als Hauptseite (Navigationssymbole einblenden).
     const mocks = {
       "/api/buildings": [
         { id: 20, caption: "Feuerwache Innenstadt", building_type: 0, leitstelle_building_id: 30, latitude: 48.2082, longitude: 16.3738, personal_count: 14, personal_count_target: 18, enabled: true, extensions: [{ type_id: 0, caption: "Rettungsdienst-Erweiterung", enabled: false, available: true }, { type_id: 1, caption: "Wasserrettung", enabled: true, available_at: "2026-09-05T08:00:00Z" }] },
@@ -29,7 +30,7 @@
         ],
         paging: { count_total: 3 }
       },
-      "/api/schoolings": [{ id: 501, caption: "GW-Gefahrgut Lehrgang", building_caption: "Feuerwehrschule", start_at: "2026-09-03T08:00:00Z", finish_at: "2026-09-06T08:00:00Z", participants_count: 8 }],
+      "/api/schoolings": { result: [{ id: 501, education_title: "GW-Gefahrgut Lehrgang", running: true, open_spaces: 2, finish_time: "2026-11-08T08:00:00+01:00", building_id: 22 }, { id: 502, education_title: "Autobahnpolizei", running: true, open_spaces: 0, finish_time: "2026-11-12T20:30:00+01:00", building_id: 999 }] },
       "/api/v1/vehicle_distances.json": { result: [{ vehicle_id: 101, distance_km: 1234.5, distance_km_30d: 18.2 }, { vehicle_id: 102, distance_km: 8210, distance_km_30d: 920 }, { vehicle_id: 103, distance_km: 4400, distance_km_30d: 310 }] },
       "https://api.lss-manager.de/de_DE/vehicles": {
         "0": { caption: "LF 20", staff: { min: 1, max: 9 } },
@@ -114,16 +115,16 @@
         </tbody></table>`, { status: 200 });
       }
       if (pathname === "/buildings/20/personals") {
-        return new Response(`<table id="personal_table"><tbody>
-          <tr data-filterable-by='["gw_gefahrgut","rettungsdienst"]'><td><input class="personal-delete-checkbox" value="1"></td><td>Max Muster</td><td>GW-Gefahrgut, Rettungsdienst</td><td></td><td>Verfügbar</td></tr>
+        return new Response(`<table id="personal_table"><thead><tr><th></th><th>Name</th><th>Ausbildung</th><th>Gebunden an</th><th>Status</th></tr></thead><tbody>
+          <tr data-filterable-by='["gw_gefahrgut","rettungsdienst"]'><td><input class="personal-delete-checkbox" value="1"></td><td>Max Muster</td><td>GW-Gefahrgut, Rettungsdienst</td><td><a href="/vehicles/101">Florian 1/46-1</a></td><td>Verfügbar</td></tr>
           <tr data-filterable-by='["gw_gefahrgut","rettungsdienst"]'><td><input class="personal-delete-checkbox" value="2"></td><td>Erika Beispiel</td><td>GW-Gefahrgut, Rettungsdienst</td><td></td><td>Verfügbar</td></tr>
           <tr data-filterable-by='["gw_gefahrgut"]'><td><input class="personal-delete-checkbox" value="3"></td><td>Luisa Beispiel</td><td>GW-Gefahrgut</td><td></td><td>Verfügbar</td></tr>
           <tr data-filterable-by='["gw_gefahrgut"]'><td><input class="personal-delete-checkbox" value="4"></td><td>Manuel Beispiel</td><td>GW-Gefahrgut</td><td></td><td>Verfügbar</td></tr>
         </tbody></table>`, { status: 200 });
       }
       if (pathname === "/buildings/21/personals") {
-        return new Response(`<table id="personal_table"><tbody>
-          <tr data-filterable-by="[]"><td><input class="personal-delete-checkbox" value="5"></td><td>Melina Beispiel</td><td>Keine Ausbildung</td><td></td><td>Verfügbar</td></tr>
+        return new Response(`<table id="personal_table"><thead><tr><th></th><th>Name</th><th>Ausbildung</th><th>Gebunden an</th><th>Status</th></tr></thead><tbody>
+          <tr data-filterable-by="[]"><td><input class="personal-delete-checkbox" value="5"></td><td>Melina Beispiel</td><td>Keine Ausbildung</td><td><a href="/vehicles/103">Rettung 2/83-1</a></td><td>Verfügbar</td></tr>
           <tr data-filterable-by="[]"><td><input class="personal-delete-checkbox" value="6"></td><td>Patrick Beispiel</td><td>Keine Ausbildung</td><td></td><td>Verfügbar</td></tr>
         </tbody></table>`, { status: 200 });
       }

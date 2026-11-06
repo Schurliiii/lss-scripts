@@ -14,7 +14,12 @@ const release = require("../release.js");
 // Kompaktes Datenformat je Standort:
 // [id, lat, lon, Klasse, Bezirks-ID, Name, Betreiber, Straße, Hausnummer, PLZ, Ort]
 const { OFFICIAL_STATIONS, REGION_META, STATION_DISTRICTS } = new Function(`${read("official-data.js")}\n${read("regions.js")}\nreturn { OFFICIAL_STATIONS, REGION_META, STATION_DISTRICTS };`)();
-const classes = ["fire-professional", "fire-volunteer", "fire-other", "rescue-redcross", "rescue-johanniter", "rescue-samariter", "rescue-other"];
+// Datenstand aus dem Kopf von official-data.js und den Krankenhaus-Quellangaben.
+const stichtag = (read("official-data.js").match(/Stichtag (\d{2}\.\d{2}\.\d{4})/) || [])[1] || "unbekannt";
+const kaSource = OFFICIAL_STATIONS.find((station) => station.tags?.["bev:class"] === "hospital")?.tags["bev:source"].replace("BMASGPK ", "") || "";
+const policeSource = (OFFICIAL_STATIONS.find((station) => station.tags?.amenity === "police")?.tags["bev:source"].match(/\d{2}\.\d{2}\.\d{4}/) || [])[0];
+const OFFICIAL_VERSION = `BEV-DLM ${stichtag}${kaSource ? ` · ${kaSource}` : ""}${policeSource ? ` · BMI ${policeSource}` : ""}`;
+const classes = ["fire-professional", "fire-volunteer", "fire-other", "rescue-redcross", "rescue-johanniter", "rescue-samariter", "rescue-other", "hospital", "police", "police-special"];
 const round = (value) => Math.round(value * 1e6) / 1e6;
 const stations = OFFICIAL_STATIONS.map((station) => {
   const tags = station.tags || {};
@@ -33,14 +38,14 @@ const stations = OFFICIAL_STATIONS.map((station) => {
     tags["addr:city"] || "",
   ];
 });
-const data = { version: "BEV-DLM 23.03.2026", classes, regions: REGION_META, stations };
+const data = { version: OFFICIAL_VERSION, classes, regions: REGION_META, stations };
 
 const metadata = [
   "// ==UserScript==",
   "// @name         LSS Wachenplaner Österreich",
   `// @namespace    ${release.namespace("local.lss-wachenplaner")}`,
-  "// @version      1.1.3",
-  "// @description  Alle echten Feuerwehr- und Rettungsstandorte Österreichs direkt in Leitstellenspiel.de: zeigt gebaute und fehlende Wachen und baut fehlende per Klick.",
+  "// @version      1.2.0",
+  "// @description  Alle echten Feuerwehr-, Rettungs- und Polizeistandorte und Akutspitäler Österreichs direkt in Leitstellenspiel.de: zeigt gebaute und fehlende Standorte und baut fehlende per Klick.",
   "// @author       Schurliiii",
   ...release.iconLines(path.join(projectDir, "assets")),
   ...release.distributionLines("lss_einsatzkarte", "lss-wachenplaner"),
@@ -69,7 +74,9 @@ const styleBootstrap = `(() => {
 
 // Als JSON-String eingebettet: Der Browser überfliegt den String beim Laden nur,
 // JSON.parse läuft erst, wenn der Wachenplaner tatsächlich geöffnet wird.
-const dataScript = `// Standorte: BEV Digitales Landschaftsmodell Bauten, Stichtag 23.03.2026 (CC BY 4.0).
+const dataScript = `// Standorte: BEV Digitales Landschaftsmodell Bauten, Stichtag ${stichtag} (CC BY 4.0).
+// Polizei: Polizeidienststellen Österreich, Bundesministerium für Inneres (Open Government Data).
+// Krankenhäuser: Krankenanstalten-Verzeichnis BMASGPK${kaSource ? ` (${kaSource})` : ""}; Koordinaten BEV; einzelne ergänzte Koordinaten © OpenStreetMap-Mitwirkende (ODbL), siehe tools/corrections.json.
 // Bezirke: Statistik Austria, Politische Bezirke 2026 (CC BY 4.0).
 (function (root) {
   const raw = ${JSON.stringify(JSON.stringify(data))};

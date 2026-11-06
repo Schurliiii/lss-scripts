@@ -6,8 +6,8 @@ Interaktive, statische Webkarte zur realistischen Platzierung von Feuerwehr- und
 
 ## Enthalten
 
-- 5.606 amtlich verortete Feuerwehr- und Rettungsstützpunkte in ganz Österreich
-- getrennte Filter für Berufsfeuerwehr, Freiwillige Feuerwehr, ÖRK, Johanniter, Samariterbund und weitere Rettungsorganisationen
+- 5.563 verortete Feuerwehr- und Rettungsstützpunkte, 812 Polizeiinspektionen und 125 Akutspitäler in ganz Österreich
+- getrennte Filter für Berufsfeuerwehr, Freiwillige Feuerwehr, ÖRK, Johanniter, Samariterbund, weitere Rettungsorganisationen, Polizei und Krankenhäuser
 - Gebietsfilter für alle neun Bundesländer und die politischen Bezirke (Stand 2026)
 - automatischer Kartensprung auf das gewählte Bundesland oder den gewählten Bezirk
 - automatische Leitstellenspiel-Empfehlung pro Standort
@@ -54,4 +54,15 @@ Unter **Darstellung → Effekte** lässt sich „Sparsam“ wählen: keine Glas-
 
 ## Datenhinweis
 
-Die Standorte stammen aus dem österreichweiten Datensatz „Digitales Landschaftsmodell – Bauten“ des Bundesamts für Eich- und Vermessungswesen (BEV), Stichtag 23.03.2026, Lizenz CC BY 4.0. Enthalten sind 5.067 Feuerwehr- und 539 Rettungs-/Sanitätsstandorte. Die Gebietszuordnung basiert auf den politischen Bezirken 2026 von Statistik Austria, ebenfalls CC BY 4.0. Es werden keine geschätzten Ersatzpunkte verwendet. Die Anwendung ist nur als Spiel- und Planungshilfe gedacht, nicht für reale Einsätze.
+Die Standorte stammen aus dem österreichweiten Datensatz „Digitales Landschaftsmodell – Bauten“ des Bundesamts für Eich- und Vermessungswesen (BEV), Stichtag 23.03.2026, Lizenz CC BY 4.0. Enthalten sind 5.036 Feuerwehr- und 527 Rettungsstandorte. Die Krankenhäuser (125 Standorte) stammen aus dem Krankenanstalten-Verzeichnis des Gesundheitsministeriums (Stand 18.09.2026): öffentliche Akutspitäler und AUVA-Unfallkrankenhäuser mit Innerer Medizin, Chirurgie oder Unfallchirurgie – also die Häuser, die Rettungspatienten aufnehmen. Privatsanatorien, Reha-, Psychiatrie- und Pflegeeinrichtungen sind nicht enthalten. Ihre Koordinaten kommen von den BEV-Punkten; nur für die Klinik Penzing gibt es keinen, ihre Koordinate stammt aus OpenStreetMap (© OpenStreetMap-Mitwirkende, ODbL). Die Polizeiinspektionen (812: Polizei-, Autobahn-, Verkehrs- und Grenzpolizeiinspektionen) stammen aus dem Datensatz „Polizeidienststellen Österreich“ des Bundesministeriums für Inneres (Open Government Data, Stand 18.10.2026); Bezirks- und Stadtpolizeikommanden sowie Landespolizeidirektionen sind Verwaltungsstellen und nicht enthalten. Die Gebietszuordnung basiert auf den politischen Bezirken 2026 von Statistik Austria, ebenfalls CC BY 4.0.
+
+Gegenüber dem BEV-Rohbestand wurden Einträge entfernt, die keine Einsatzstandorte sind (Bereichsflorianstationen, Landesfeuerwehrverbände und Feuerwehrschulen, Wasser- und Bergrettung), doppelt erfasste Standorte zusammengeführt und nachweislich aufgelassene Dienststellen gestrichen. In BEV fehlende, amtlich belegte Rettungsstandorte (z. B. Samariterbund Zurndorf und Weppersdorf laut Landesamtsblatt Burgenland) wurden ergänzt; ihre Koordinaten stammen aus OpenStreetMap (© OpenStreetMap-Mitwirkende, ODbL). Alle 524 Rettungsstandorte wurden im November 2026 einzeln gegen aktuelle Quellen der Organisationen (Standortlisten der Bezirksstellen, Leistungsberichte, Landesamtsblätter, Regionalmedien) geprüft: 22 aufgelassene Stellen, reine Büros und Doppelerfassungen wurden entfernt, 10 übersiedelte Wachen verlegt, 20 fehlende Standorte ergänzt und rund 100 Namen auf den heutigen Stand gebracht. Jede Einzelkorrektur steht mit Quelle in `tools/corrections.json`.
+
+### Daten neu erzeugen
+
+```powershell
+python -I tools/build_official_data.py --bauten DLM_2000_BAUTEN_<Stichtag>.gpkg --krankenanstalten "KA-Verzeichnis <Datum>.xlsx" --polizei Polizeidienststellen-<Datum>.json --districts bezirke.geojson --report bericht.json
+node build-userscript.js
+```
+
+Quellen: BEV-Geoportal (data.bev.gv.at → „Digitales Landschaftsmodell - Bauten“), Sozialministerium → „Krankenanstalten in Österreich“ (KA-Verzeichnis), BMI-Polizeidienststellen (ArcGIS-Dienst „Polizeidienststellen_Oesterreich_OGD“, Layer 5, Abfrage mit outSR=4326 und f=json), GeoSphere Austria (admin_grenzen_oesterreich, Layer 1, als GeoJSON). Benötigt nur Python 3 ohne Zusatzpakete. Die Anwendung ist nur als Spiel- und Planungshilfe gedacht, nicht für reale Einsätze.

@@ -16,12 +16,18 @@ const CLASS_META = {
   "rescue-johanniter": { label: "Johanniter", hint: "Rettungs- und Einsatzstellen", short: "J", color: "#e0a100", kind: "rescue", game: "Rettungswache" },
   "rescue-samariter": { label: "Samariterbund", hint: "ASBÖ", short: "S", color: "#0a6cdf", kind: "rescue", game: "Rettungswache" },
   "rescue-other": { label: "Weitere Rettung", hint: "Wiener Rettung, Malteser u. a.", short: "R", color: "#636366", kind: "rescue", game: "Rettungswache" },
+  hospital: { label: "Krankenhäuser", hint: "Öffentliche Akutspitäler und Unfallkrankenhäuser", short: "H", color: "#0a84ff", kind: "hospital", game: "Krankenhaus" },
+  police: { label: "Polizeiinspektionen", hint: "Bundespolizei, Stand BMI", short: "P", color: "#1c3f94", kind: "police", game: "Polizeiwache" },
+  "police-special": { label: "Autobahn-, Verkehrs- & Grenzpolizei", hint: "API, VI und GPI", short: "A", color: "#4b6cb7", kind: "police", game: "Polizeiwache" },
 };
+const KIND_LABEL = { fire: "Feuerwache", rescue: "Rettungswache", hospital: "Krankenhaus", police: "Polizeiwache" };
 
 // LSS-Gebäudetypen, die einen echten Standort im Spiel abdecken.
 const FIRE_TYPES = new Set([0, 18]);
 const RESCUE_TYPES = new Set([2, 20]);
 const COMPLEX_TYPES = new Set([22, 23]);
+const HOSPITAL_TYPES = new Set([4]);
+const POLICE_TYPES = new Set([6, 19]);
 
 const $ = (selector) => document.querySelector(selector);
 const sidebar = $("#sidebar");
@@ -64,7 +70,7 @@ L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_M
   maxZoom: 19,
   keepBuffer: 4,
   updateWhenZooming: false,
-  attribution: 'Basemap &copy; Esri · Standorte: <a href="https://www.bev.gv.at/">BEV</a>, CC BY 4.0',
+  attribution: 'Basemap &copy; Esri · Standorte: <a href="https://www.bev.gv.at/">BEV</a> (CC BY 4.0), BMI, BMASGPK, teils &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
 }).addTo(map);
 
 const clusters = L.markerClusterGroup({
@@ -207,7 +213,7 @@ function addStation(element) {
     tags,
     className,
     kind: CLASS_META[className].kind,
-    name: tags.name || tags.operator || (className.startsWith("fire") ? "Feuerwache" : "Rettungswache"),
+    name: tags.name || tags.operator || KIND_LABEL[CLASS_META[className].kind],
     districtId: String(STATION_DISTRICTS[element.id] || ""),
     districtName,
     stateName,
@@ -227,6 +233,8 @@ function buildingKinds(type) {
   if (FIRE_TYPES.has(type)) return ["fire"];
   if (RESCUE_TYPES.has(type)) return ["rescue"];
   if (COMPLEX_TYPES.has(type)) return ["fire", "rescue"];
+  if (HOSPITAL_TYPES.has(type)) return ["hospital"];
+  if (POLICE_TYPES.has(type)) return ["police"];
   return [];
 }
 
@@ -535,7 +543,7 @@ function renderMissing() {
   $("#coverageBar").style.width = `${scope.length ? (built / scope.length) * 100 : 0}%`;
   $("#coverageText").textContent = `${formatNumber(built)} von ${formatNumber(scope.length)} gebaut (${scope.length ? Math.round((built / scope.length) * 100) : 0} %)`;
   if (!missing.length) {
-    list.innerHTML = '<li class="empty-state"><strong>Alles gebaut 🎉</strong>In diesem Gebiet fehlt keine Wache der gewählten Organisationen.</li>';
+    list.innerHTML = '<li class="empty-state"><strong>Alles gebaut 🎉</strong>In diesem Gebiet fehlt kein Standort der gewählten Organisationen.</li>';
     more.hidden = true;
     return;
   }

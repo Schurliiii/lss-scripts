@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  if (window.top !== window.self || document.getElementById("lssfo-launcher")) return;
+  if (window.top !== window.self || document.getElementById("lssfo-launcher") || document.getElementById("lssfo-shell")) return;
 
   const Core = globalThis.LSSFleetCore;
   const CACHE_KEY = "lssfo-cache-v2";
@@ -39,7 +39,7 @@
     scanProgress: null,
     manager: null,
     courseAssistant: null,
-    nativeManager: null,
+    gameView: null,
     build: null,
     mapInstance: null,
     mapMarkers: new Map(),
@@ -76,9 +76,11 @@
   launcher.type = "button";
   launcher.title = "LSS Verwaltung öffnen";
   launcher.setAttribute("aria-label", "LSS Verwaltung öffnen");
-  launcher.innerHTML = `${icon("app")}<span>LSS Verwaltung</span>`;
+  launcher.innerHTML = `<svg class="lssfo-icon lssfo-launcher-glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor"><rect x="3" y="3" width="8" height="10" rx="2"/><rect x="13" y="3" width="8" height="6" rx="2"/><rect x="13" y="11" width="8" height="10" rx="2"/><rect x="3" y="15" width="8" height="6" rx="2"/></svg><span>LSS Verwaltung</span>`;
   launcher.addEventListener("click", openDashboard);
-  mountLauncher();
+  // Das Symbol gehört nur in die Navigationsleiste der Hauptseite. Unterseiten wie
+  // /buildings/… oder /vehicles/…/zuweisung haben eine andere Leiste (oder keine).
+  if (location.pathname === "/" || globalThis.LSS_TEST_PAGE) mountLauncher();
 
   const shell = document.createElement("div");
   shell.id = "lssfo-shell";
@@ -134,7 +136,7 @@
     </section>
     <div id="lssfo-manager" class="lssfo-manager" hidden></div>
     <div id="lssfo-course-assistant" class="lssfo-manager" hidden></div>
-    <div id="lssfo-native-manager" class="lssfo-manager" hidden></div>`;
+    <div id="lssfo-game-view" class="lssfo-manager" hidden></div>`;
   document.body.appendChild(shell);
   let shellCloseTimer = 0;
   if (standaloneMode) document.documentElement.classList.add("lssfo-standalone");
@@ -248,7 +250,7 @@
   });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && state.build) closeBuildDialog();
-    else if (event.key === "Escape" && state.nativeManager) closeNativeManager();
+    else if (event.key === "Escape" && state.gameView) closeGameView();
     else if (event.key === "Escape" && state.courseAssistant) closeCourseAssistant();
     else if (event.key === "Escape" && state.manager) closeManager();
     else if (event.key === "Escape" && state.open) closeDashboard();
@@ -282,6 +284,15 @@
   const PLANNER_CONSENT_KEY = "lssfo-planner-consent";
   const FIRE_BUILDING_TYPES = new Set([0, 18]);
   const RESCUE_BUILDING_TYPES = new Set([2, 20]);
+  const HOSPITAL_BUILDING_TYPES = new Set([4]);
+  const POLICE_BUILDING_TYPES = new Set([6, 19]);
+  // Je Art: LSS-Gebäudetyp, Farbe und Überschrift im Bau-Dialog der Wachenplaner-Brücke.
+  const PLANNER_KINDS = {
+    fire: { type: "0", color: "#ff6a00", headline: "NEUE FEUERWACHE", pattern: /feuerwache/i, exact: /^feuerwache$/i },
+    rescue: { type: "2", color: "#ff3b30", headline: "NEUE RETTUNGSWACHE", pattern: /rettungswache/i, exact: /^rettungswache$/i },
+    hospital: { type: "4", color: "#0a84ff", headline: "NEUES KRANKENHAUS", pattern: /krankenhaus/i, exact: /^krankenhaus$/i },
+    police: { type: "6", color: "#1c3f94", headline: "NEUE POLIZEIWACHE", pattern: /polizeiwache/i, exact: /^polizeiwache$/i },
+  };
   const plannerOpener = detectPlannerOpener();
   plannerRoot.addEventListener("click", handlePlannerClick);
   plannerRoot.addEventListener("input", (event) => {
@@ -322,8 +333,8 @@
       launcher.classList.add("lssfo-navbar-launcher");
       return;
     }
-    if (!launcher.isConnected) document.body.appendChild(launcher);
-    if (attempt < 20) setTimeout(() => mountLauncher(attempt + 1), 250);
+    // Kein schwebender Ersatzknopf: lieber warten, bis die Leiste da ist.
+    if (attempt < 40) setTimeout(() => mountLauncher(attempt + 1), 250);
   }
 
   function loadSettings() {
@@ -401,7 +412,7 @@
     }
     closeManager();
     closeCourseAssistant();
-    closeNativeManager();
+    closeGameView();
     state.open = false;
     shell.classList.add("is-closing");
     document.documentElement.classList.remove("lssfo-open");
@@ -453,8 +464,21 @@
       }
       return;
     }
+    const gameLink = event.target.closest('a[href^="/buildings/"], a[href^="/vehicles/"]');
+    if (gameLink && !event.ctrlKey && !event.metaKey && !event.shiftKey && event.button === 0) {
+      event.preventDefault();
+      openGameView(gameLink.getAttribute("href"), gameLink.textContent.trim());
+      return;
+    }
     const action = event.target.closest("[data-action]")?.dataset.action;
     if (action === "close") closeDashboard();
+    if (action === "game-view-close") closeGameView();
+    if (action === "game-view-back") {
+      try { shell.querySelector("#lssfo-game-frame")?.contentWindow?.history.back(); } catch { /* Verlauf nicht verfügbar. */ }
+    }
+    if (action === "game-view-reload") {
+      try { shell.querySelector("#lssfo-game-frame")?.contentWindow?.location.reload(); } catch { /* Neu laden nicht möglich. */ }
+    }
     if (action === "refresh") loadData(true);
     if (action === "popout") openStandaloneDashboard();
     if (action === "scan") state.scanController ? stopScan() : scanEducations();
@@ -476,11 +500,6 @@
     }
     if (action === "course-open") openCourseAssistant();
     if (action === "course-close") closeCourseAssistant();
-    if (action === "native-building") {
-      const control = event.target.closest("[data-building-id]");
-      openNativeManager(Number(control.dataset.buildingId), control.dataset.buildingName || "Wache", control.dataset.nativeSection || "extensions");
-    }
-    if (action === "native-close") closeNativeManager();
     if (action === "table-sort") {
       const control = event.target.closest("[data-sort-table]");
       changeTableSort(control.dataset.sortTable, Number(control.dataset.sortColumn));
@@ -1090,14 +1109,13 @@
     const limitValue = Number.isFinite(state.extensionLimit) ? String(state.extensionLimit) : "all";
     const controls = `<div class="lssfo-content-actions lssfo-extension-actions"><div><strong>Ausbauverwaltung</strong><span>Standardmäßig werden nur vorhandene Ausbauten geladen. Katalogmöglichkeiten können bei Bedarf eingeblendet werden.</span></div><div class="lssfo-extension-controls"><label>Status<select id="lssfo-extension-status"><option value="owned"${state.extensionStatus === "owned" ? " selected" : ""}>Vorhanden</option><option value="attention"${state.extensionStatus === "attention" ? " selected" : ""}>Handlungsbedarf</option><option value="active"${state.extensionStatus === "active" ? " selected" : ""}>Aktiv</option><option value="building"${state.extensionStatus === "building" ? " selected" : ""}>Im Bau</option><option value="inactive"${state.extensionStatus === "inactive" ? " selected" : ""}>Fertig, inaktiv</option><option value="missing"${state.extensionStatus === "missing" ? " selected" : ""}>Katalog: noch möglich</option><option value="all"${state.extensionStatus === "all" ? " selected" : ""}>Alle Status</option></select></label><label>Maximal anzeigen<select id="lssfo-extension-limit"><option value="50"${limitValue === "50" ? " selected" : ""}>50</option><option value="100"${limitValue === "100" ? " selected" : ""}>100</option><option value="250"${limitValue === "250" ? " selected" : ""}>250</option><option value="500"${limitValue === "500" ? " selected" : ""}>500</option><option value="all"${limitValue === "all" ? " selected" : ""}>Alle</option></select></label></div></div>`;
     const limitNote = visibleRows.length < rows.length ? `<div class="lssfo-callout lssfo-limit-note"><strong>${formatNumber(visibleRows.length)} von ${formatNumber(rows.length)}</strong><span>Einträgen werden angezeigt. Grenze oben erhöhen oder Suche und Statusfilter verwenden.</span></div>` : "";
-    content.innerHTML = controls + limitNote + table(["Wache", "Typ", "Leitstelle", "Bezirk", "Ausbau", "Status / Restzeit", "Verwaltung"], visibleRows.map((entry) => [
+    content.innerHTML = controls + limitNote + table(["Wache", "Typ", "Leitstelle", "Bezirk", "Ausbau", "Status / Restzeit"], visibleRows.map((entry) => [
       `<a href="/buildings/${entry.buildingId}" target="_blank" rel="noopener">${escapeHtml(entry.buildingCaption)}</a>`,
       escapeHtml(entry.buildingType),
       escapeHtml(entry.dispatchCenterCaption),
       escapeHtml(entry.district || "–"),
       escapeHtml(entry.caption),
       extensionStatus(entry),
-      `<button type="button" class="lssfo-btn lssfo-btn-small" data-action="native-building" data-building-id="${entry.buildingId}" data-building-name="${escapeHtml(entry.buildingCaption)}" data-native-section="extensions">Im Panel verwalten</button>`,
     ]), rows.length, "extensions");
   }
 
@@ -1153,21 +1171,20 @@
   function renderPersonnelPlanning(content) {
     const model = state.operationalModel;
     const rows = model.personnelRows.filter((row) => (!state.onlyMissing || row.shortage || row.assignmentGap || row.trainingGap) && matchesQuery(row.caption, row.typeCaption, row.dispatchCenterCaption, row.district));
-    const suggestions = model.transferSuggestions.slice(0, 12).map((suggestion) => `<article class="lssfo-transfer-card"><span>${icon("transfer")}</span><div><strong>${suggestion.kind === "assign" ? `${suggestion.amount} freie Person${suggestion.amount === 1 ? "" : "en"} Fahrzeugen zuweisen` : suggestion.kind === "qualification" ? `${suggestion.amount}× ${escapeHtml(suggestion.qualification)} verschieben` : `${suggestion.amount} Person${suggestion.amount === 1 ? "" : "en"} verschieben`}</strong><small>${suggestion.kind === "assign" ? `${escapeHtml(suggestion.to.caption)} · Personal ist bereits an der Wache vorhanden` : `${escapeHtml(suggestion.from.caption)} → ${escapeHtml(suggestion.to.caption)}${suggestion.sameDispatch ? " · gleiche Leitstelle" : " · leitstellenübergreifend"}`}</small></div><button type="button" class="lssfo-btn lssfo-btn-small" data-action="native-building" data-building-id="${suggestion.to.id}" data-building-name="${escapeHtml(suggestion.to.caption)}" data-native-section="personnel">Personal öffnen</button></article>`).join("");
+    const suggestions = model.transferSuggestions.slice(0, 12).map((suggestion) => `<article class="lssfo-transfer-card"><span>${icon("transfer")}</span><div><strong>${suggestion.kind === "assign" ? `${suggestion.amount} freie Person${suggestion.amount === 1 ? "" : "en"} Fahrzeugen zuweisen` : suggestion.kind === "qualification" ? `${suggestion.amount}× ${escapeHtml(suggestion.qualification)} verschieben` : `${suggestion.amount} Person${suggestion.amount === 1 ? "" : "en"} verschieben`}</strong><small>${suggestion.kind === "assign" ? `${escapeHtml(suggestion.to.caption)} · Personal ist bereits an der Wache vorhanden` : `${escapeHtml(suggestion.from.caption)} → ${escapeHtml(suggestion.to.caption)}${suggestion.sameDispatch ? " · gleiche Leitstelle" : " · leitstellenübergreifend"}`}</small></div><a class="lssfo-btn lssfo-btn-small" href="/buildings/${suggestion.to.id}/personals" target="_blank" rel="noopener">Personal</a></article>`).join("");
     const scanned = Object.keys(state.personnelScans).length;
     const planner = `<div class="lssfo-personnel-planner"><div class="lssfo-section-heading"><div><h3>Verschiebevorschläge</h3><p>Reserve wird zuerst innerhalb derselben Leitstelle verteilt; nach der Detailprüfung werden auch Ausbildungsüberschüsse berücksichtigt.</p></div><button type="button" class="lssfo-btn" data-action="scan-personnel">${state.personnelScanController ? `${icon("stop")} Prüfung stoppen` : `${icon("scan")} Personal detailliert prüfen`}</button></div>${scanned ? `<div class="lssfo-personnel-scan-note">${scanned} Wachen mit Namen, Verfügbarkeit und Ausbildungen geprüft.</div>` : ""}${suggestions || '<div class="lssfo-empty lssfo-empty-small">Keine sinnvolle Verschiebung aus den aktuellen Sollwerten ableitbar.</div>'}</div>`;
-    content.innerHTML = planner + table(["Wache", "Typ", "Leitstelle", "Personal", "Fahrzeug-Soll", "Nicht zugewiesen", "Reserve", "Personal fehlt", "Zuweisung fehlt", "Ausbildungsbilanz", "Aktion"], rows.map((row) => [
+    content.innerHTML = planner + table(["Wache", "Typ", "Leitstelle", "Personal", "Fahrzeug-Soll", "Nicht zugewiesen", "Reserve", "Personal fehlt", "Zuweisung fehlt", "Ausbildungsbilanz"], rows.map((row) => [
       `<a href="/buildings/${row.id}" target="_blank" rel="noopener">${escapeHtml(row.caption)}</a>`,
       escapeHtml(row.typeCaption),
       escapeHtml(row.dispatchCenterCaption),
-      row.personnel,
+      `<a href="/buildings/${row.id}/personals" target="_blank" rel="noopener" title="Personal der Wache öffnen">${formatNumber(row.personnel)}</a>`,
       row.targetCrew,
       row.unassigned,
       row.reserve ? badge(row.reserve, "ok") : "0",
       row.shortage ? badge(row.shortage, "danger") : badge("0", "ok"),
       row.assignmentGap ? badge(row.assignmentGap, "danger") : badge("0", "ok"),
       renderQualificationBalance(row),
-      `<button type="button" class="lssfo-btn lssfo-btn-small" data-action="native-building" data-building-id="${row.id}" data-building-name="${escapeHtml(row.caption)}" data-native-section="personnel">Personal verwalten</button>`,
     ]), rows.length, "personnel-planning");
   }
 
@@ -1255,7 +1272,7 @@
       <strong>${hasScan ? "Ausbildungsprüfung aktiv" : "Ausbildungsbedarf berechnet"}</strong>
       <span>${hasScan
         ? "„Vorhanden“ zählt passend ausgebildete, dem jeweiligen Fahrzeug zugewiesene Personen."
-        : "Klicke auf „Ausbildungen prüfen“, um die tatsächlichen Fahrzeugzuweisungen schonend und nacheinander zu prüfen."}</span>
+        : "Klicke auf „Ausbildungen prüfen“, um die tatsächlichen Fahrzeugzuweisungen zu prüfen – eine Abfrage pro Wache, höchstens drei gleichzeitig."}</span>
     </div>`;
     content.innerHTML = intro + table(
       ["Ausbildung", "Bereich", "Fahrzeuge", "Benötigte Plätze", "Vorhanden", "Fehlt", "Prüfstand"],
@@ -1273,23 +1290,52 @@
     );
   }
 
+  // /api/schoolings liefert je Lehrgang nur education_title, building_id, finish_time,
+  // running und open_spaces. Schule und Beginn werden daraus abgeleitet: die Schule über
+  // die Gebäudeliste, der Beginn über die Lehrgangsdauer aus dem LSSM-Katalog.
+  function courseRows() {
+    const buildingCaptions = new Map(state.buildings.map((building) => [Number(building.id), building.caption]));
+    const durations = new Map();
+    for (const list of Object.values(state.schoolingTypes || {})) {
+      for (const entry of Array.isArray(list) ? list : []) {
+        const days = Number(String(entry.duration || "").match(/(\d+)\s*Tag/i)?.[1]);
+        if (entry.caption && days) durations.set(String(entry.caption).trim().toLowerCase(), days);
+      }
+    }
+    return state.schoolings.map((course) => {
+      const title = course.education_title || course.caption || course.name || `Lehrgang ${course.id ?? ""}`;
+      const finish = course.finish_time || course.finish_at || "";
+      const finishDate = finish ? new Date(finish) : null;
+      const days = durations.get(String(title).trim().toLowerCase());
+      const start = finishDate && !Number.isNaN(finishDate.valueOf()) && days ? new Date(finishDate.valueOf() - days * 86400000) : null;
+      return {
+        title,
+        school: buildingCaptions.get(Number(course.building_id)) || course.building_caption || "",
+        running: course.running !== false,
+        start,
+        finish: finishDate && !Number.isNaN(finishDate.valueOf()) ? finishDate : null,
+        openSpaces: Number.isFinite(Number(course.open_spaces)) ? Number(course.open_spaces) : null,
+      };
+    });
+  }
+
   function renderCourses(content) {
-    const courses = state.schoolings.filter((course) => matchesQuery(
-      course.caption, course.name, course.schooling_name, course.building_caption, course.education_title,
-    ));
+    const courses = courseRows().filter((course) => matchesQuery(course.title, course.school));
     const courseActions = `<div class="lssfo-content-actions"><div><strong>Lehrgangsverwaltung</strong><span>Eigene Schule auswählen und die Spieloberfläche direkt im Panel verwenden.</span></div><button type="button" class="lssfo-btn lssfo-btn-primary" data-action="course-open">${icon("plus")}<span>Lehrgang starten</span></button></div>`;
     if (!courses.length) {
       content.innerHTML = `${courseActions}<div class="lssfo-empty">Keine laufenden eigenen Lehrgänge gefunden.</div>`;
       return;
     }
     content.innerHTML = courseActions + table(
-      ["Lehrgang", "Schule", "Beginn", "Ende", "Teilnehmer"],
+      ["Lehrgang", "Schule", "Status", "Beginn", "Ende", "Restzeit", "Freie Plätze"],
       courses.map((course) => [
-        escapeHtml(course.caption || course.name || course.schooling_name || course.education_title || `Lehrgang ${course.id ?? ""}`),
-        escapeHtml(course.building_caption || course.school_caption || course.school || "–"),
-        formatDate(course.start_at || course.start || course.created_at),
-        formatDate(course.finish_at || course.end_at || course.end),
-        course.participants_count ?? course.participants?.length ?? course.personal_count ?? "–",
+        escapeHtml(course.title),
+        escapeHtml(course.school || "–"),
+        course.running ? badge("Läuft", "ok") : badge("Offen", "warn"),
+        course.start ? formatDate(course.start) : "–",
+        course.finish ? formatDate(course.finish) : "–",
+        course.finish ? escapeHtml(relativeTime(course.finish)) : "–",
+        course.openSpaces ?? "–",
       ]),
       courses.length,
       "courses",
@@ -1711,42 +1757,53 @@
     monitorEmbeddedFrame(frame, "Der Schulungsbereich konnte im Panel nicht dargestellt werden. Öffne die ausgewählte Ausbildungsstätte oben in einem neuen Tab.");
   }
 
-  function openNativeManager(buildingId, buildingName, section) {
-    state.nativeManager = { buildingId, buildingName, section };
-    renderNativeManager();
+  // Zeigt eine Spielseite (Wache, Personal, Fahrzeug) direkt im Panel an – kein neuer Tab.
+  // Die Seite ist voll bedienbar; Links darin bleiben im eingebetteten Fenster.
+  function openGameView(url, title) {
+    const element = shell.querySelector("#lssfo-game-view");
+    const kind = /\/personals/.test(url) ? "PERSONAL" : /^\/vehicles\//.test(url) ? "FAHRZEUG" : "WACHE";
+    state.gameView = { url };
+    element.hidden = false;
+    element.innerHTML = `<div class="lssfo-manager-backdrop" data-action="game-view-close"></div>
+      <aside class="lssfo-course-card lssfo-game-view" role="dialog" aria-modal="true" aria-label="${escapeHtml(title || "Spielseite")}">
+        <header class="lssfo-manager-header"><div><span>${kind} · IM SPIEL</span><h2>${escapeHtml(title || "Spielseite")}</h2></div>
+          <div class="lssfo-game-view-actions">
+            <button type="button" class="lssfo-icon-btn" data-action="game-view-back" aria-label="Zurück" title="Zurück">‹</button>
+            <button type="button" class="lssfo-icon-btn" data-action="game-view-reload" aria-label="Neu laden" title="Neu laden">${icon("refresh")}</button>
+            <button type="button" class="lssfo-icon-btn" data-action="game-view-close" aria-label="Schließen" title="Schließen">${icon("close")}</button>
+          </div></header>
+        <div class="lssfo-course-frame-wrap"><iframe id="lssfo-game-frame" src="${escapeHtml(url)}" title="${escapeHtml(title || "Spielseite")}"></iframe></div>
+      </aside>`;
+    monitorEmbeddedFrame(element.querySelector("#lssfo-game-frame"), "Diese Seite lässt sich nicht im Panel anzeigen. Mit Strg-Klick auf den Link öffnet sie sich in einem neuen Tab.");
   }
 
-  function closeNativeManager() {
-    state.nativeManager = null;
-    const element = shell.querySelector("#lssfo-native-manager");
+  function closeGameView() {
+    const element = shell.querySelector("#lssfo-game-view");
+    const view = state.gameView;
+    state.gameView = null;
     if (element) {
       element.hidden = true;
       element.innerHTML = "";
     }
+    // Änderungen an Personal oder Fahrzeugbindung sofort übernehmen: Personalliste dieser Wache neu lesen.
+    const buildingId = Number(view?.url.match(/^\/buildings\/(\d+)/)?.[1]);
+    if (buildingId) void refreshBuildingAssignments(buildingId);
   }
 
-  function renderNativeManager() {
-    const element = shell.querySelector("#lssfo-native-manager");
-    const manager = state.nativeManager;
-    if (!manager) {
-      element.hidden = true;
-      return;
-    }
-    const sectionLabel = manager.section === "personnel" ? "Personalverwaltung" : "Ausbauverwaltung";
-    const url = manager.section === "personnel" ? `/buildings/${manager.buildingId}/personals` : `/buildings/${manager.buildingId}#extensions`;
-    element.hidden = false;
-    element.innerHTML = `<div class="lssfo-manager-backdrop" data-action="native-close"></div><aside class="lssfo-course-card" role="dialog" aria-modal="true" aria-label="${escapeHtml(sectionLabel)}"><header class="lssfo-manager-header"><div><span>ORIGINAL LSS-VERWALTUNG</span><h2>${escapeHtml(manager.buildingName)} · ${escapeHtml(sectionLabel)}</h2></div><button type="button" class="lssfo-icon-btn" data-action="native-close" aria-label="Schließen">${icon("close")}</button></header><div class="lssfo-course-controls"><p>Die Bedienung erfolgt über die originale Spieloberfläche. Änderungen werden dadurch mit deiner angemeldeten LSS-Sitzung gespeichert.</p><a class="lssfo-btn" href="${url}" target="_blank" rel="noopener">In neuem Tab öffnen ${icon("external")}</a></div><div class="lssfo-course-frame-wrap"><iframe id="lssfo-native-frame" src="${url}" title="${escapeHtml(sectionLabel)}"></iframe></div></aside>`;
-    element.querySelector("#lssfo-native-frame")?.addEventListener("load", (event) => {
-      try {
-        const frameDocument = event.currentTarget.contentDocument;
-        const candidates = manager.section === "personnel"
-          ? ['a[href="#personal"]', 'a[href*="personal"]']
-          : ['a[href="#extensions"]', 'a[href*="extension"]'];
-        const target = candidates.map((selector) => frameDocument?.querySelector(selector)).find(Boolean);
-        target?.click();
-      } catch { /* Die vollständige Gebäudeseite bleibt im Frame nutzbar. */ }
-    });
-    monitorEmbeddedFrame(element.querySelector("#lssfo-native-frame"), "Die eingebettete LSS-Seite stellt hier keine Bedienelemente bereit. Öffne die Verwaltung über die Schaltfläche oben in einem neuen Tab.");
+  async function refreshBuildingAssignments(buildingId) {
+    try {
+      const response = await fetch(`/buildings/${buildingId}/personals`, { credentials: "include" });
+      if (!response.ok) return;
+      const scan = parseBuildingAssignments(await response.text());
+      state.personnelScans[String(buildingId)] = scan.station;
+      for (const vehicle of state.analyzed.filter((entry) => entry.buildingId === buildingId)) {
+        if (!state.scans[String(vehicle.id)] && !scan.vehicles.has(vehicle.id)) continue;
+        state.scans[String(vehicle.id)] = scan.vehicles.get(vehicle.id) || { counts: {}, assignedRows: 0, scannedAt: Date.now() };
+      }
+      analyze();
+      renderContent();
+      void persistCurrentCache();
+    } catch { /* Die Daten werden beim nächsten Aktualisieren übernommen. */ }
   }
 
   function monitorEmbeddedFrame(frame, message) {
@@ -2021,7 +2078,7 @@
       ? (state.operationalModel?.extensions || []).filter((entry) => entry.buildingId === manager.id)
       : [];
     const buildingPlanningSection = manager.kind === "building"
-      ? `<section class="lssfo-manager-section"><div class="lssfo-section-heading"><div><h3>Ausbauten und Personal</h3><p>${buildingExtensions.length ? `${buildingExtensions.filter((entry) => entry.status === "active").length} aktiv · ${buildingExtensions.filter((entry) => entry.status === "inactive").length} inaktiv · ${buildingExtensions.filter((entry) => entry.status === "building").length} im Bau` : "Keine Ausbauinformationen vorhanden"}</p></div></div><div class="lssfo-extension-chip-list">${buildingExtensions.map((entry) => `<span class="lssfo-extension-chip ${entry.status}">${escapeHtml(entry.caption)} · ${entry.status === "building" ? relativeTime(entry.availableAt) : entry.status === "inactive" ? "inaktiv" : entry.status === "missing" ? "fehlt" : "aktiv"}</span>`).join("") || '<span class="lssfo-muted">Keine Einträge</span>'}</div><div class="lssfo-edit-actions"><button type="button" class="lssfo-btn" data-action="native-building" data-building-id="${manager.id}" data-building-name="${escapeHtml(manager.name)}" data-native-section="extensions">Ausbauten im Panel verwalten</button><button type="button" class="lssfo-btn" data-action="native-building" data-building-id="${manager.id}" data-building-name="${escapeHtml(manager.name)}" data-native-section="personnel">Personal im Panel verwalten</button></div></section>`
+      ? `<section class="lssfo-manager-section"><div class="lssfo-section-heading"><div><h3>Ausbauten und Personal</h3><p>${buildingExtensions.length ? `${buildingExtensions.filter((entry) => entry.status === "active").length} aktiv · ${buildingExtensions.filter((entry) => entry.status === "inactive").length} inaktiv · ${buildingExtensions.filter((entry) => entry.status === "building").length} im Bau` : "Keine Ausbauinformationen vorhanden"}</p></div></div><div class="lssfo-extension-chip-list">${buildingExtensions.map((entry) => `<span class="lssfo-extension-chip ${entry.status}">${escapeHtml(entry.caption)} · ${entry.status === "building" ? relativeTime(entry.availableAt) : entry.status === "inactive" ? "inaktiv" : entry.status === "missing" ? "fehlt" : "aktiv"}</span>`).join("") || '<span class="lssfo-muted">Keine Einträge</span>'}</div><div class="lssfo-edit-actions"><a class="lssfo-btn" href="/buildings/${manager.id}" target="_blank" rel="noopener">Wache öffnen</a><a class="lssfo-btn" href="/buildings/${manager.id}/personals" target="_blank" rel="noopener">Personal</a></div></section>`
       : "";
     element.innerHTML = `<div class="lssfo-manager-backdrop" data-action="manager-close"></div>
       <aside class="lssfo-manager-card" role="dialog" aria-modal="true" aria-label="${manager.kind === "vehicle" ? "Fahrzeug" : "Wache"} bearbeiten">
@@ -2272,18 +2329,59 @@
     state.scanController = controller;
     state.error = "";
     render();
+    // Eine Abfrage je Wache statt je Fahrzeug: Die Personalliste der Wache zeigt bei
+    // jeder Person das gebundene Fahrzeug. Die Zuweisungsseite eines Fahrzeugs ist
+    // deutlich langsamer und wird nur noch als Rückfallebene genutzt.
+    const byBuilding = new Map();
+    for (const vehicle of candidates) {
+      if (!byBuilding.has(vehicle.buildingId)) byBuilding.set(vehicle.buildingId, []);
+      byBuilding.get(vehicle.buildingId).push(vehicle);
+    }
+    const buildings = [...byBuilding.entries()];
+    const fallback = [];
+    let done = 0;
+    let sinceAnalyze = 0;
+    const progress = (label) => {
+      state.scanProgress = `Ausbildungen werden geprüft: ${done} / ${buildings.length} Wachen · ${label}`;
+      renderStatus();
+    };
+    const scanBuilding = async ([buildingId, vehicles]) => {
+      const caption = vehicles[0].buildingCaption || `Wache ${buildingId}`;
+      const response = await fetch(`/buildings/${buildingId}/personals`, { credentials: "include", signal: controller.signal });
+      if (!response.ok) throw new Error(`${response.status} bei ${caption}`);
+      const html = await response.text();
+      const scan = parseBuildingAssignments(html);
+      state.personnelScans[String(buildingId)] = scan.station;
+      for (const vehicle of vehicles) {
+        const assigned = scan.vehicles.get(Number(vehicle.id));
+        const expected = Number(vehicle.assigned ?? 0);
+        // Keine Fahrzeugspalte gefunden, aber laut API ist Personal zugewiesen → Zuweisungsseite nutzen.
+        if (!assigned && (!scan.hasVehicleColumn || expected > 0)) fallback.push(vehicle);
+        else state.scans[String(vehicle.id)] = assigned || { counts: {}, assignedRows: 0, scannedAt: Date.now() };
+      }
+      done += 1;
+      sinceAnalyze += 1;
+      if (sinceAnalyze >= 10) {
+        sinceAnalyze = 0;
+        analyze();
+      }
+      progress(caption);
+    };
     try {
-      for (let index = 0; index < candidates.length; index += 1) {
+      progress("Start");
+      await runLimited(buildings, 3, async (entry) => {
+        if (controller.signal.aborted) return;
+        await scanBuilding(entry);
+        await delay(80, controller.signal);
+      });
+      for (let index = 0; index < fallback.length; index += 1) {
         if (controller.signal.aborted) break;
-        const vehicle = candidates[index];
-        state.scanProgress = `Ausbildungen werden geprüft: ${index + 1} / ${candidates.length} · ${vehicle.caption}`;
+        const vehicle = fallback[index];
+        state.scanProgress = `Einzelprüfung: ${index + 1} / ${fallback.length} · ${vehicle.caption}`;
         renderStatus();
         const response = await fetch(`/vehicles/${vehicle.id}/zuweisung`, { credentials: "include", signal: controller.signal });
         if (!response.ok) throw new Error(`${response.status} bei Fahrzeug ${vehicle.id}`);
-        const html = await response.text();
-        state.scans[String(vehicle.id)] = parseAssignedEducations(html, vehicle.id);
-        analyze();
-        if (index + 1 < candidates.length) await delay(250, controller.signal);
+        state.scans[String(vehicle.id)] = parseAssignedEducations(await response.text(), vehicle.id);
       }
       state.tab = "training";
     } catch (error) {
@@ -2334,8 +2432,8 @@
     }
   }
 
-  function parseStationPersonnel(html) {
-    const doc = new DOMParser().parseFromString(html, "text/html");
+  function parseStationPersonnel(source) {
+    const doc = typeof source === "string" ? new DOMParser().parseFromString(source, "text/html") : source;
     const rows = [...doc.querySelectorAll("#personal_table tbody tr, tbody tr[data-filterable-by]")];
     const counts = {};
     const names = {};
@@ -2360,6 +2458,45 @@
       }
     }
     return { counts, names, total: rows.length, available, inTraining, withoutEducation, scannedAt: Date.now() };
+  }
+
+  // Arbeitet eine Liste mit höchstens `limit` gleichzeitigen Aufgaben ab.
+  async function runLimited(items, limit, worker) {
+    let next = 0;
+    const lanes = Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (next < items.length) {
+        const item = items[next];
+        next += 1;
+        await worker(item);
+      }
+    });
+    await Promise.all(lanes);
+  }
+
+  // Personalliste einer Wache: Stationsübersicht und Ausbildungen je gebundenem Fahrzeug.
+  function parseBuildingAssignments(html) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const rows = [...doc.querySelectorAll("#personal_table tbody tr, tbody tr[data-filterable-by]")];
+    const vehicles = new Map();
+    let hasVehicleColumn = false;
+    for (const row of rows) {
+      const link = [...row.querySelectorAll('a[href*="/vehicles/"]')]
+        .map((anchor) => (anchor.getAttribute("href") || "").match(/\/vehicles\/(\d+)\/?$/))
+        .find(Boolean);
+      if (link) hasVehicleColumn = true;
+      if (!link) continue;
+      let keys = [];
+      try { keys = JSON.parse(row.dataset.filterableBy || "[]"); } catch { keys = []; }
+      for (const element of row.querySelectorAll("[data-education-key]")) keys.push(element.dataset.educationKey);
+      const vehicleId = Number(link[1]);
+      if (!vehicles.has(vehicleId)) vehicles.set(vehicleId, { counts: {}, assignedRows: 0, scannedAt: Date.now() });
+      const entry = vehicles.get(vehicleId);
+      entry.assignedRows += 1;
+      for (const key of new Set(keys.filter(Boolean))) entry.counts[key] = (entry.counts[key] || 0) + 1;
+    }
+    // Eine Spalte „Gebunden an“ gibt es auch, wenn gerade niemand gebunden ist (Überschrift).
+    if (!hasVehicleColumn) hasVehicleColumn = [...doc.querySelectorAll("#personal_table thead th, thead th")].some((cell) => /gebunden|fahrzeug/i.test(cell.textContent || ""));
+    return { station: parseStationPersonnel(doc), vehicles, hasVehicleColumn };
   }
 
   function parseAssignedEducations(html, vehicleId) {
@@ -2476,7 +2613,7 @@
       station: {
         key: String(station.key || ""),
         name: String(station.name || "Neue Wache").slice(0, 120),
-        kind: station.kind === "rescue" ? "rescue" : "fire",
+        kind: PLANNER_KINDS[station.kind] ? station.kind : "fire",
         label: String(station.label || ""),
         address: String(station.address || ""),
         district: String(station.district || ""),
@@ -2534,10 +2671,11 @@
     build.fields = fields;
     build.submit = submit;
     build.typeOptions = options(fields.type);
-    const kindPattern = build.station.kind === "rescue" ? /rettungswache/i : /feuerwache/i;
-    const exactPattern = build.station.kind === "rescue" ? /^rettungswache$/i : /^feuerwache$/i;
+    const kindMeta = PLANNER_KINDS[build.station.kind];
+    const kindPattern = kindMeta.pattern;
+    const exactPattern = kindMeta.exact;
     const preferredType = build.typeOptions.find((option) => exactPattern.test(option.label))
-      || build.typeOptions.find((option) => option.value === (build.station.kind === "rescue" ? "2" : "0"))
+      || build.typeOptions.find((option) => option.value === kindMeta.type)
       || build.typeOptions.find((option) => kindPattern.test(option.label));
     build.typeValue = preferredType?.value ?? fields.type.value;
     build.dispatchOptions = options(fields.dispatch);
@@ -2648,6 +2786,8 @@
 
   function buildingKindMatches(building, kind) {
     const type = Number(building.building_type);
+    if (kind === "hospital") return HOSPITAL_BUILDING_TYPES.has(type);
+    if (kind === "police") return POLICE_BUILDING_TYPES.has(type);
     return kind === "rescue" ? RESCUE_BUILDING_TYPES.has(type) : FIRE_BUILDING_TYPES.has(type);
   }
 
@@ -2670,9 +2810,9 @@
       return;
     }
     const station = build.station;
-    const glyph = `<span class="lssfo-sheet-icon" style="background:${station.kind === "rescue" ? "#ff3b30" : "#ff6a00"}">${icon("building")}</span>`;
+    const glyph = `<span class="lssfo-sheet-icon" style="background:${PLANNER_KINDS[station.kind].color}">${icon("building")}</span>`;
     if (build.done) {
-      element.innerHTML = wrap(`${header("NEUE WACHE", build.done.caption || station.name, glyph)}
+      element.innerHTML = wrap(`${header(PLANNER_KINDS[station.kind].headline, build.done.caption || station.name, glyph)}
         <div class="lssfo-manager-body lssfo-center"><div class="lssfo-success-mark">${icon("check")}</div><p class="lssfo-sheet-text"><b>${escapeHtml(build.done.caption || station.name)}</b> wurde gebaut und im Wachenplaner als erledigt markiert.</p>
         <div class="lssfo-sheet-actions" style="justify-content:center"><a class="lssfo-btn" href="/buildings/${Number(build.done.id)}" target="_blank" rel="noopener">Wache öffnen ${icon("external")}</a><button type="button" class="lssfo-btn lssfo-btn-primary" data-action="build-close">Fertig</button></div></div>`);
       return;
@@ -2723,7 +2863,7 @@
     }
     const marker = Leaflet.marker([build.lat, build.lon], {
       draggable: true,
-      icon: Leaflet.divIcon({ className: "", html: `<div style="width:26px;height:26px;border:3px solid #fff;border-radius:50%;background:${build.station.kind === "rescue" ? "#ff3b30" : "#ff6a00"};box-shadow:0 3px 10px rgba(0,0,0,.35)"></div>`, iconSize: [26, 26], iconAnchor: [13, 13] }),
+      icon: Leaflet.divIcon({ className: "", html: `<div style="width:26px;height:26px;border:3px solid #fff;border-radius:50%;background:${PLANNER_KINDS[build.station.kind].color};box-shadow:0 3px 10px rgba(0,0,0,.35)"></div>`, iconSize: [26, 26], iconAnchor: [13, 13] }),
     }).addTo(map);
     marker.on("dragend", () => {
       const position = marker.getLatLng();
@@ -2875,8 +3015,8 @@
       headers = ["Ausbildung", "Bereich", "Fahrzeuge", "Benötigt", "Vorhanden", "Fehlt", "Geprüfte Fahrzeuge"];
       rows = Core.summarizeTraining(state.analyzed).map((item) => [trainingName(item.key), item.school, item.vehicles, item.required, item.actual, item.missing, item.scannedVehicles]);
     } else if (state.tab === "courses") {
-      headers = ["Lehrgang", "Schule", "Beginn", "Ende", "Teilnehmer"];
-      rows = state.schoolings.map((course) => [course.caption || course.name || course.schooling_name || "", course.building_caption || course.school || "", course.start_at || course.start || "", course.finish_at || course.end_at || "", course.participants_count ?? ""]);
+      headers = ["Lehrgang", "Schule", "Status", "Beginn", "Ende", "Freie Plätze"];
+      rows = courseRows().map((course) => [course.title, course.school, course.running ? "Läuft" : "Offen", course.start?.toLocaleString("de-DE") || "", course.finish?.toLocaleString("de-DE") || "", course.openSpaces ?? ""]);
     } else {
       headers = ["Fahrzeug", "Typ", "Wache", "Soll", "Zugewiesen", "Fehlt", "Ausbildung fehlt"];
       rows = state.analyzed.map((item) => [item.caption, item.typeCaption, item.buildingCaption, item.target, item.assigned, item.missingCrew, item.missingTraining]);

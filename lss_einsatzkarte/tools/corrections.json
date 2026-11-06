@@ -1,0 +1,1629 @@
+{
+  "_hinweis": "Korrekturen am BEV-Datenstand, jeweils mit Quelle und Prüfdatum. Wird von tools/build_official_data.py angewendet.",
+  "remove": [
+    {
+      "id": 58177,
+      "name": "Dienststelle Moosbrunn (Rotes Kreuz)",
+      "reason": "Dienststelle aufgelassen: Die Bezirksstelle Schwechat führt nur noch die Dienststellen Himberg, Götzendorf und Leopoldsdorf. Das Gebäude Hauptstraße 55 wurde zum Musikerheim umgebaut.",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/schwechat/wer-wir-sind/unsere-dienststellen",
+        "https://www.noen.at/schwechat/lebensmittelhilfe-team-oesterreich-tafel-uebersiedelt-von-moosbrunn-nach-himberg-himberg-moosbrunn-366069484"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 57766,
+      "name": "Ortsstelle Piesting (Rotes Kreuz)",
+      "reason": "Ortsstelle im 4. Quartal 2023 aufgelassen; Versorgung durch Pernitz, Sollenau und Maiersdorf. Die aktuelle Ortsstellenliste der Bezirksstelle Wiener Neustadt nennt nur Bad Erlach, Maiersdorf und Wiesmath.",
+      "sources": [
+        "https://www.noen.at/wr-neustadt/entscheidung-gefallen-rotes-kreuz-schliesst-ortsstelle-in-markt-piesting-376199155",
+        "https://www.roteskreuz.at/niederoesterreich/wiener-neustadt/das-sind-wir/unsere-ortsstellen"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 57943,
+      "name": "Ortsrettungsstelle Sirnitz (Rotes Kreuz)",
+      "reason": "Seit dem Leistungsbericht 2017 nicht mehr unter den Dienststellen mit Einsatzfahrzeug des RK Kärnten geführt (zuletzt 2016); auch im Leistungsbericht 2025 nicht enthalten.",
+      "sources": [
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/KN/PDFs/Leistungsberichte/Leistungsbericht_2016_web.pdf",
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/KN/PDFs/Leistungsberichte/Druckdaten-JTB-WEB.pdf"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 58113,
+      "name": "Mobiles Palliativteam Waidhofen",
+      "reason": "Kein Rettungsstandort: Ein mobiles Palliativteam ist ein Pflege- und Betreuungsdienst der Johanniter (Palliative Care), keine Rettungswache mit Rettungs- oder Krankentransportfahrzeugen. Die Johanniter NÖ betreiben laut eigener Seite Rettungs- und Sekundärtransport ab St. Pölten, nicht in Waidhofen/Ybbs. Ob das Team selbst noch besteht (BEV-Stand 2014), habe ich nicht geprüft, es ist unerheblich.",
+      "sources": [
+        "https://www.johanniter.at/niederoesterreich/hilfe-angebote/hilfe-im-notfall/rettungsdienst"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 181441,
+      "name": "Bezirksstelle Perg",
+      "reason": "Kein Rettungsstandort: Laut Jahresbericht 2024 wurde die Bezirksstelle Perg im Juni 2024 'in der ehem. Bezirksbauernkammer' neu eröffnet, getrennt vom Einsatzzentrum, aber nahe daran. Die Website führt sie als 'Büro Perg' (Fadingerstraße 13) mit Bezirksstellenleitung und Geschäftsführung. Fahrzeuge, Ortsstelle und Notarztdienst sind im Einsatzzentrum Dirnbergerstraße 15 (id 46108, ca. 150 m entfernt).",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/perg/bezirksstelle-perg",
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/OO/BS/Perg/Publikationen/Jahresbericht2024_Mail.pdf"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 58019,
+      "name": "Bezirksstelle Linz-Land",
+      "reason": "Doppelt erfasst: Linz-Stadt und Linz-Land bilden heute die gemeinsame Bezirksstelle Linz Stadt/Land in der Körnerstraße 28. Diese Adresse und dieselben Koordinaten hat bereits id 46095. Die Linz-Land-Ortsstellen (Enns, Traun, Leonding usw.) sind eigene Standorte.",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/linz-stadt-land/land/thema/ortsstellen",
+        "https://www.roteskreuz.at/oberoesterreich/linz-stadt-land/ortsstelle-linz-stadt"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 58030,
+      "name": "Bezirksstelle Urfahr-Umgebung",
+      "reason": "Kein Rettungsstandort: Laut RK ist im Gewerbepark Urfahr 8, TOP 2 nur das Bezirkssekretariat (Geschäftsapparat) stationiert. Den Rettungsdienst betreiben die Ortsstellen Bad Leonfelden, Gallneukirchen, Herzogsdorf, Kirchschlag und Walding sowie der NEF-Stützpunkt Zwettl. An der Bezirksstelle ist kein Rettungsdienst genannt.",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/urfahr-umgebung/bezirksstelle-urfahr-umgebung",
+        "https://www.roteskreuz.at/oberoesterreich/urfahr-umgebung/ortsstellen"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 93809,
+      "name": "Bereich Oberösterreich",
+      "reason": "Kein Rettungsstandort: Laut Malteser ist Landstraße 24, 4020 Linz das Sekretariat des Bereichs OÖ. Rettungsdienst betreibt der Malteser Hospitaldienst nur in Wien und Graz, Krankentransport nur von Graz, Innsbruck, Salzburg und Wien aus.",
+      "sources": [
+        "https://www.malteser.at/wer-wir-sind/bundeslaender/oberoesterreich/",
+        "https://www.malteser.at/was-wir-tun/sanitatsdienst/rettungsdienst/",
+        "https://www.malteser.at/was-wir-tun/sanitatsdienst/krankentransport/"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 57719,
+      "name": "Bezirksstelle Steyr-Land",
+      "reason": "Kein Rettungsstandort: Laut Bezirksstellenseite ist die Redtenbachergasse 5/2 die Verwaltung. Sie ist zuständig für Ambulanzdienst, soziale Dienste, Kurse und Pflege und hat Bürozeiten. Den Rettungsdienst leisten die Ortsstellen Bad Hall, Sierning, Ternberg und Weyer. Das Gebäude steht direkt neben der Bezirks- und Ortsstelle Steyr-Stadt (id 180482).",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/steyr-land/bezirksstelle-steyr-land",
+        "https://www.roteskreuz.at/oberoesterreich/steyr-land/ortsstellen"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 57990,
+      "name": "Gruppe Zell am See Wasserrettung",
+      "reason": "Kein Rettungsstandort: Laut Salzburgwiki stellt der Samariterbund in Zell am See die Wasserrettung. Medienberichte (Salzburg24) beschreiben nur Bootseinsätze am Zeller See. Hinweise auf Rettungs- oder Krankentransportfahrzeuge an diesem Standort gibt es nicht. Wasserrettung ist laut Vorgabe ausgeschlossen.",
+      "sources": [
+        "https://wiki.sn.at/wiki/Samariterbund,_Landesgruppe_Salzburg",
+        "https://www.salzburg24.at/news/salzburg/pinzgau/erprobt-fuer-den-ernstfall-wasserrettung-in-zell-am-see-bekommt-drei-neue-bootsfuehrerinnen-art-331888"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 57765,
+      "name": "Dienststelle Leobersdorf",
+      "reason": "Aufgelassen: NÖN vom 12.02.2024: 'Rot-Kreuz Dienststelle Leobersdorf schließt!', nach 40 Jahren wird daraus ein Acute-Community-Nurse-Stützpunkt. Die Versorgung übernehmen die Bezirksstellen Triestingtal und Kottingbrunn. OSM führt das Gebäude Enzesfelder Straße 22 inzwischen als 'Acute Community Nurse – Standort Leobersdorf' (Notruf NÖ). Auf den aktuellen Seiten von RK Baden, Kottingbrunn und Triestingtal kommt keine Dienststelle Leobersdorf vor.",
+      "sources": [
+        "https://www.noen.at/baden/umstrukturierung-rot-kreuz-dienststelle-leobersdorf-schliesst-409171881"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 133126,
+      "name": "Ortsstelle Bruck an der Mur",
+      "reason": "Doppelt erfasst: Gleiche Adresse und gleiche Koordinaten (Tragößer Straße 9) wie die Bezirksstelle Bruck-Mürzzuschlag, id 58131. Die Ortsstelle Bruck sitzt im Gebäude der Bezirksstelle.",
+      "sources": [
+        "https://www.roteskreuz.at/steiermark/landesverband-und-bezirksstellen/bruck-muerzzuschlag"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 58132,
+      "name": "Ortsstelle Seiersberg",
+      "reason": "Doppelt erfasst: Gleiche Adresse und gleiche Koordinaten (Haushamer Straße 10, Seiersberg-Pirka) wie die Bezirksstelle Graz-Umgebung, id 133127. Laut RK-Seite sitzen Ortsstelle Seiersberg und Bezirksstelle im selben Haus.",
+      "sources": [
+        "https://www.roteskreuz.at/steiermark/graz-umgebung/die-ortsstellen-1"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 88973,
+      "name": "ÖRK Landesverband Tirol",
+      "reason": "Kein Rettungsstandort: Die RK-Tirol-Übersicht führt die Steinbockallee 13 in Rum unter 'Landesstellen', also Verwaltung bzw. Landesverband, getrennt von den Bezirks- und Ortsstellen. Ein Beleg für dort stationierte Rettungsfahrzeuge fehlt.",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/das-rote-kreuz-tirol"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 58041,
+      "name": "Tyrol Air Ambulance GmbH",
+      "reason": "Kein Rettungsstandort: Tyrol Air Ambulance ist ein Ambulanzflug-Unternehmen (Rückholflüge) am Flughafen Innsbruck und keine Wache des bodengebundenen Rettungsdienstes. Der bodengebundene RD im Flughafen-Westen läuft über die neue RK-Wache West (Kranebitter Allee 97, id 200641). Eine eigene Quelle zu TAA-Bodenfahrzeugen habe ich nicht gefunden.",
+      "sources": [
+        "https://www.roteskreuz-innsbruck.at/presse/pressemitteilungen/neue-wache-west/"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 57633,
+      "name": "Rotkreuz Ortsstelle Alberschwende",
+      "reason": "Kein Rettungsstandort: Die Ortsstelle besteht nur aus Ehrenamtlichen. Ihre Aufgaben sind ein First-Response-Team, Ambulanzdienste bei Veranstaltungen, Pistenrettung, Ausbildung und Sammlungen. Einziges Fahrzeug ist ein Mannschaftstransportwagen (MTW, Mercedes Vito), kein RTW oder KTW. Den Rettungsdienst fährt die RK-Abteilung Bregenzerwald in Egg. Aktuelle Adresse: Hof 23.",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-ortsstelle-alberschwende",
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-abteilung-bregenzerwald"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 57634,
+      "name": "Rotkreuz Ortsstelle Andelsbuch",
+      "reason": "Kein Rettungsstandort: Die Ortsstelle besteht noch (Hof 720) und teilt sich die Räume mit Feuerwehr und Musikverein. Ihre Aufgaben sind Pistenrettung im Skigebiet Niedere, Baumbergedienst für Paragleiter, Ambulanzdienste, Flohmarkt und Soziales. Ein stationiertes Rettungs- oder Krankentransportfahrzeug wird nicht erwähnt. Den Rettungsdienst fährt die RK-Abteilung Bregenzerwald in Egg.",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-ortsstelle-andelsbuch"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 57641,
+      "name": "Rotkreuz Ortsstelle Buch",
+      "reason": "Kein Rettungsstandort: Die Ortsstelle hat rund 25 ehrenamtliche Mitglieder und stellt First Responder, Ambulanz- und Blutspendedienste. Laut eigener Seite kommt der Rettungswagen wegen der langen Anfahrt 'von Bregenz oder Dornbirn'. Ein stationiertes Fahrzeug gibt es nicht.",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-ortsstelle-buch"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 57701,
+      "name": "Rotkreuz Ortsstelle Schwarzenberg",
+      "reason": "Kein Rettungsstandort: Die Ortsstelle hat 34 ehrenamtliche Mitglieder und ist für Blutspendeaktionen, Erste-Hilfe-Kurse, First Response per Pager und Pistenrettung am Haldenlift zuständig. Ein stationiertes Rettungsfahrzeug gibt es nicht. Die Adresse lautet heute Seemoos 698b statt Hof 454.",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-ortsstelle-schwarzenberg",
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 58137,
+      "name": "Rotkreuz Ortsstelle Wolfurt",
+      "reason": "Kein Rettungsstandort: Laut eigener Seite sind die Hauptaufgaben Ambulanzdienste bei Sport- und Kulturveranstaltungen und Blutspendeaktionen, dazu Seniorenbegleitung. Einige Ehrenamtliche helfen bei Nacht- und Wochenenddiensten in benachbarten Abteilungen aus. Ein eigener Rettungsdienst oder ein stationiertes Fahrzeug wird nicht genannt. Die Ortsstelle selbst besteht weiter (Weberstraße 16a).",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-ortsstelle-wolfurt"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 57998,
+      "name": "Bundeszentrale",
+      "reason": "Kein Rettungsstandort: Johannesgasse 2/2/20, 1010 Wien, ist laut malteser.at die Bundeszentrale, also eine Verwaltung. Rettungs- und Krankentransport in Wien laufen über den Bereich Wien am Börseplatz 6 (id 57624). Für stationierte Fahrzeuge in der Johannesgasse gibt es keinen Hinweis; OSM führt dort die Botschaft des Malteserordens.",
+      "sources": [
+        "https://www.malteser.at/kontakt/",
+        "https://www.malteser.at/wer-wir-sind/bundeslaender/wien-niederoesterreich/"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 88968,
+      "name": "Grünes Kreuz, Zentrale NÖ",
+      "reason": "Aufgelassen: MeinBezirk vom 17.07.2025: Der frühere Standort des Grünen Kreuzes in der Brunner Straße ist bereits aufgelassen. Die Sanitäter fahren jetzt vom neuen WRK-Standort Süd im Kaffeeweg 12 aus. Laut WRK-Jahresbilanz 2025 ist das Grüne Kreuz vollständig in den WRK-Rettungsdienst integriert. Der Nachfolgestandort ist unter 'missing' eingetragen.",
+      "sources": [
+        "https://www.meinbezirk.at/liesing/c-gesundheit/neuer-rettungsstandort-in-liesing-versorgt-wiens-sueden_a7458112",
+        "https://www.roteskreuz.at/wien/news/aktuelles/hilfe-auf-die-wien-zaehlt-rettungsdienst-des-wiener-roten-kreuzes-zieht-bilanz-fuer-2025"
+      ],
+      "checked": "2026-11-06"
+    }
+  ],
+  "rename": [
+    {
+      "id": 58141,
+      "name": "Ortsrettungsstelle Friesach",
+      "sources": [
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/KN/PDFs/Leistungsberichte/Druckdaten-JTB-WEB.pdf"
+      ]
+    },
+    {
+      "id": 57944,
+      "name": "Ortsrettungsstelle Feistritz/Drau",
+      "sources": [
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/KN/PDFs/Leistungsberichte/Druckdaten-JTB-WEB.pdf"
+      ]
+    },
+    {
+      "id": 57897,
+      "name": "Johanniter Kärnten – Rettungsstation Patergassen",
+      "sources": [
+        "https://www.johanniter.at"
+      ]
+    },
+    {
+      "id": 58121,
+      "name": "Samariterbund Villach",
+      "sources": [
+        "https://www.villach.at"
+      ]
+    },
+    {
+      "id": 57806,
+      "name": "Ortsstelle Hollenthon-Lichtenegg",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/kirchschlag"
+      ]
+    },
+    {
+      "id": 57741,
+      "name": "Bezirksstelle Korneuburg",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/korneuburg/wer-wir-sind/ortsstelle-korneuburg",
+        "https://www.roteskreuz.at/niederoesterreich/wer-wir-sind-der-landesverband-noe/bezirksstellen"
+      ]
+    },
+    {
+      "id": 208326,
+      "name": "Johanniter Station Spillern",
+      "sources": [
+        "https://www.johanniter.at/kontakt",
+        "https://www.johanniter.at/kontakt/station-spillern"
+      ]
+    },
+    {
+      "id": 57612,
+      "name": "Dienststelle Spitz",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/krems/wer-wir-sind/dienststelle-spitz"
+      ]
+    },
+    {
+      "id": 57689,
+      "name": "Gruppe Traisen",
+      "sources": [
+        "https://sozialinfo.noe.gv.at/content/de/9/InstitutionDetail.do?it_1=7342681"
+      ]
+    },
+    {
+      "id": 57748,
+      "name": "Bezirksstelle Lilienfeld - St. Aegyd",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/lilienfeld-st-aegyd/kontakte/bezirksstelle/haben-sie-fragen",
+        "https://www.roteskreuz.at/niederoesterreich/lilienfeld-st-aegyd/home"
+      ]
+    },
+    {
+      "id": 57700,
+      "name": "Dienststelle St. Leonhard am Forst",
+      "sources": [
+        "https://www.ruprechtshofen.at/system/web/news.aspx?detailonr=226802405-1713&menuonr=219393722",
+        "https://www.ruprechtshofen.at/Rotes_Kreuz_-_Ortsstelle_St_Leonhard-Ruprechtshofen"
+      ]
+    },
+    {
+      "id": 57725,
+      "name": "Stützpunkt Persenbeug",
+      "sources": [
+        "https://sozialinfo.noe.gv.at/content/de/9/InstitutionDetail.do?it_1=7342671"
+      ]
+    },
+    {
+      "id": 57987,
+      "name": "Stützpunkt Pöchlarn-Neuda",
+      "sources": [
+        "https://sozialinfo.noe.gv.at/content/de/9/InstitutionDetail.do?it_1=7342672"
+      ]
+    },
+    {
+      "id": 57651,
+      "name": "Bezirksstelle Mistelbach",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/mistelbach/kontakte/erste-anlaufstelle",
+        "https://sozialinfo.noe.gv.at/content/de/9/InstitutionDetail.do?it_1=7340673"
+      ]
+    },
+    {
+      "id": 57623,
+      "name": "Rettungsstelle Vösendorf",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/brunn-am-gebirge/wer-wir-sind/unsere-ortsstellen/voesendorf"
+      ]
+    },
+    {
+      "id": 57948,
+      "name": "Rettungsstelle Breitenfurt",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/brunn-am-gebirge/wer-wir-sind/unsere-ortsstellen/voesendorf-1"
+      ]
+    },
+    {
+      "id": 58004,
+      "name": "Ortsstelle Perchtoldsdorf",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/moedling/wer-wir-sind/unsere-orts-und-dienststellen",
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/NO/Dateien/Friedenslicht/Friedenslicht_2025_01.pdf"
+      ]
+    },
+    {
+      "id": 58084,
+      "name": "Stützpunkt Gaaden-Wienerwald",
+      "sources": [
+        "https://sozialinfo.noe.gv.at/content/de/9/InstitutionDetail.do?it_1=7342664"
+      ]
+    },
+    {
+      "id": 208325,
+      "name": "Johanniter Station Wiener Neudorf",
+      "sources": [
+        "https://www.johanniter.at/kontakt",
+        "https://www.johanniter.at/kontakt/station-wr-neudorf"
+      ]
+    },
+    {
+      "id": 58098,
+      "name": "SMD Dienststelle Aspang/Mönichkirchen",
+      "sources": [
+        "https://sozialinfo.noe.gv.at/content/de/9/InstitutionDetail.do?it_1=7342653"
+      ]
+    },
+    {
+      "id": 58064,
+      "name": "Stützpunkt Traismauer",
+      "sources": [
+        "https://sozialinfo.noe.gv.at/content/de/9/InstitutionDetail.do?it_1=7342683",
+        "https://sozialinfo.noe.gv.at/content/de/9/InstitutionDetail.do?it_1=7342688"
+      ]
+    },
+    {
+      "id": 208324,
+      "name": "Johanniter Stützpunkt St. Pölten",
+      "sources": [
+        "https://www.st-poelten.at/news/20425-ausbau-des-johanniterstandortes",
+        "https://www.johanniter.at/niederoesterreich/hilfe-angebote/hilfe-im-notfall/rettungsdienst"
+      ]
+    },
+    {
+      "id": 104002,
+      "name": "Dienststelle St. Andrä-Wördern",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/tulln/jahresbericht",
+        "https://www.meinbezirk.at/tulln/c-gesundheit/neuer-rettungstransportwagen-fuer-st-andrae-woerdern_a3967602"
+      ]
+    },
+    {
+      "id": 58077,
+      "name": "Bezirksstelle und Ortsstelle Braunau",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/braunau/home/bezirksstelle-braunau",
+        "https://www.roteskreuz.at/oberoesterreich/braunau/ortsstelle-braunau"
+      ]
+    },
+    {
+      "id": 46110,
+      "name": "Ortsstelle St. Georgen am Walde",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/perg/st-georgen-walde",
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/OO/BS/Perg/Publikationen/Jahresbericht2025_Mail.pdf"
+      ]
+    },
+    {
+      "id": 46095,
+      "name": "Bezirksstelle Linz-Stadt/Land und Ortsstelle Linz-Stadt",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/linz-stadt-land/ortsstelle-linz-stadt",
+        "https://www.roteskreuz.at/oberoesterreich/linz-stadt-land/land/thema/ortsstellen"
+      ]
+    },
+    {
+      "id": 57988,
+      "name": "Samariterbund Gruppe Linz – Dienststelle Reindlstraße",
+      "sources": [
+        "https://ooe.samariterbund.at/standorte/",
+        "https://www.asb.or.at/kontakt/"
+      ]
+    },
+    {
+      "id": 192643,
+      "name": "Bezirksstelle voestalpine (Betriebsrettung)",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/voestalpine/kontakte/bezirksstelle-voestalpine"
+      ]
+    },
+    {
+      "id": 180482,
+      "name": "Bezirksstelle und Ortsstelle Steyr-Stadt",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/steyr-stadt/bezirksstelle-steyr-stadt"
+      ]
+    },
+    {
+      "id": 57710,
+      "name": "Ortsstelle Lambach/Stadl-Paura",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/wels/ortsstelle-lambach-stadl-paura"
+      ]
+    },
+    {
+      "id": 57971,
+      "name": "Dienststelle Golling",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/tennengau/golling",
+        "https://www.roteskreuz.at/salzburg/tennengau/bezirksstelle-hallein"
+      ]
+    },
+    {
+      "id": 57680,
+      "name": "Dienststelle Mattsee",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/flachgau/mattsee",
+        "https://www.roteskreuz.at/salzburg/flachgau/bezirksstelle-flachgau"
+      ]
+    },
+    {
+      "id": 57681,
+      "name": "Dienststelle Straßwalchen",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/flachgau/strasswalchen"
+      ]
+    },
+    {
+      "id": 57694,
+      "name": "Dienststelle Lamprechtshausen / Flachgau Nord",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/flachgau/lamprechtshausen"
+      ]
+    },
+    {
+      "id": 57781,
+      "name": "Dienststelle Strobl",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/flachgau/strobl"
+      ]
+    },
+    {
+      "id": 57966,
+      "name": "Dienststelle Seekirchen-Eugendorf",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/flachgau/seekirchen-eugendorf"
+      ]
+    },
+    {
+      "id": 57967,
+      "name": "Dienststelle Hof",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/flachgau/hof"
+      ]
+    },
+    {
+      "id": 133777,
+      "name": "Dienststelle Oberndorf",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/flachgau/bezirksstelle-flachgau",
+        "https://www.roteskreuz.at/salzburg/flachgau/lamprechtshausen"
+      ]
+    },
+    {
+      "id": 57832,
+      "name": "Dienststelle Bischofshofen",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/pongau/bischofshofen",
+        "https://www.roteskreuz.at/salzburg/pongau/bezirksstelle-pongau"
+      ]
+    },
+    {
+      "id": 57833,
+      "name": "Dienststelle Schwarzach",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/pongau/schwarzach"
+      ]
+    },
+    {
+      "id": 57835,
+      "name": "Dienststelle Werfen",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/pongau/werfen"
+      ]
+    },
+    {
+      "id": 57935,
+      "name": "Dienststelle St. Michael",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/lungau/st-michael"
+      ]
+    },
+    {
+      "id": 57968,
+      "name": "Dienststelle Mauterndorf",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/lungau/mauterndorf"
+      ]
+    },
+    {
+      "id": 57778,
+      "name": "Dienststelle St. Martin bei Lofer",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/pinzgau/st-martin-bei-lofer"
+      ]
+    },
+    {
+      "id": 57831,
+      "name": "Dienststelle Saalfelden",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/pinzgau/saalfelden"
+      ]
+    },
+    {
+      "id": 57866,
+      "name": "Dienststelle Rauris",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/pinzgau/rauris",
+        "https://www.roteskreuz.at/salzburg/pinzgau/bezirksstelle-pinzgau"
+      ]
+    },
+    {
+      "id": 57942,
+      "name": "Dienststelle Mittersill",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/pinzgau/mittersill"
+      ]
+    },
+    {
+      "id": 57970,
+      "name": "Dienststelle Wald im Pinzgau",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/pinzgau/wald-im-pinzgau"
+      ]
+    },
+    {
+      "id": 58135,
+      "name": "Dienststelle Saalbach",
+      "sources": [
+        "https://www.roteskreuz.at/salzburg/pinzgau/saalbach"
+      ]
+    },
+    {
+      "id": 57783,
+      "name": "Ortsstelle Ausseerland",
+      "sources": [
+        "https://www.roteskreuz.at/steiermark/liezen/die-ortsstellen"
+      ]
+    },
+    {
+      "id": 57787,
+      "name": "Ortsstelle Stainach",
+      "sources": [
+        "https://www.roteskreuz.at/steiermark/liezen/die-ortsstellen"
+      ]
+    },
+    {
+      "id": 57792,
+      "name": "Ortsstelle Altenmarkt-Großreifling",
+      "sources": [
+        "https://www.roteskreuz.at/steiermark/liezen/die-ortsstellen"
+      ]
+    },
+    {
+      "id": 133122,
+      "name": "Bezirksstelle Südoststeiermark",
+      "sources": [
+        "https://www.roteskreuz.at/steiermark/landesverband-und-bezirksstellen/suedoststeiermark",
+        "https://www.meinbezirk.at/suedoststeiermark/c-lokales/neue-rotkreuz-fuehrung-staerkt-ehrenamt-in-suedoststeiermark_a8510017"
+      ]
+    },
+    {
+      "id": 200649,
+      "name": "Ortsstelle Mureck",
+      "sources": [
+        "https://roteskreuz.at/fileadmin/user_upload/LV/ST/Generalversammlung_2024/24_04_wirkungsbericht2023_rk-stmk_web.pdf",
+        "https://www.mureck.gv.at/wp-content/uploads/2024/06/klein1DieMureckerStadtzeitung_2024_05_Nr2_1Entwurf.pdf"
+      ]
+    },
+    {
+      "id": 57679,
+      "name": "Ortsstelle Hollenstein/Ybbs",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/waidhofen-an-der-ybbs/wer-wir-sind/unsere-standorte",
+        "https://www.roteskreuz.at/niederoesterreich/waidhofen-an-der-ybbs/wer-wir-sind/die-bezirksstelle"
+      ]
+    },
+    {
+      "id": 57720,
+      "name": "Dienststelle Kematen/Ybbs",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/waidhofen-an-der-ybbs/wer-wir-sind/unsere-standorte"
+      ]
+    },
+    {
+      "id": 57732,
+      "name": "Dienststelle Schrems",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/gmuend/wer-wir-sind/unsere-ortsstellen",
+        "https://www.roteskreuz.at/niederoesterreich/gmuend/kontakte/abteilung/gruppe/ortsstelle-gmuend-2"
+      ]
+    },
+    {
+      "id": 57733,
+      "name": "Dienststelle Heidenreichstein",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/gmuend/wer-wir-sind/unsere-ortsstellen",
+        "https://www.roteskreuz.at/niederoesterreich/gmuend/kontakte/abteilung/gruppe/ortsstelle-gmuend-3"
+      ]
+    },
+    {
+      "id": 46104,
+      "name": "Bezirksstelle Gänserndorf-Marchegg",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/gaenserndorf-marchegg/wer-wir-sind/bezirksstelle-1",
+        "https://www.roteskreuz.at/niederoesterreich/gaenserndorf-marchegg/wer-wir-sind/bezirksstelle"
+      ]
+    },
+    {
+      "id": 57696,
+      "name": "Dienststelle Marchegg",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/gaenserndorf-marchegg/wer-wir-sind/bezirksstelle-1"
+      ]
+    },
+    {
+      "id": 58093,
+      "name": "Johanniter Station Orth an der Donau",
+      "sources": [
+        "https://www.johanniter.at/kontakt/station-orth-an-der-donau",
+        "https://www.johanniter.at/niederoesterreich/aktuelles/detail/noch-bessere-medizinische-versorgung-durch-telemedizin-in-orth-ad-donau-und-umgebung"
+      ]
+    },
+    {
+      "id": 58126,
+      "name": "Bezirksstelle Marchfeld",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/marchfeld/wer-wir-sind/bezirksstelle",
+        "https://www.roteskreuz.at/niederoesterreich/wer-wir-sind-der-landesverband-noe/bezirksstellen"
+      ]
+    },
+    {
+      "id": 102728,
+      "name": "Außenstelle Leopoldsdorf im Marchfelde",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/marchfeld/wer-wir-sind/aussenstelle-leopoldsdorf"
+      ]
+    },
+    {
+      "id": 113922,
+      "name": "Ortsstelle Mariazellerland",
+      "sources": [
+        "https://roteskreuz.at/fileadmin/user_upload/LV/ST/Generalversammlung_2024/24_04_wirkungsbericht2023_rk-stmk_web.pdf",
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/ST/BS/Bruck-Muerzzuschlag/OS/Leistungsbericht_2025.pdf"
+      ]
+    },
+    {
+      "id": 57972,
+      "name": "Ortsstelle Lannach/St. Josef",
+      "sources": [
+        "https://www.roteskreuz.at/steiermark/deutschlandsberg/ueber-die-bezirksstelle-deutschlandsberg-2"
+      ]
+    },
+    {
+      "id": 113921,
+      "name": "Regionalstelle Preding",
+      "sources": [
+        "https://www.grueneskreuz-stmk.at/gruppen/"
+      ]
+    },
+    {
+      "id": 133442,
+      "name": "Regionalstelle Wies",
+      "sources": [
+        "https://www.grueneskreuz-stmk.at/gruppen/",
+        "https://nominatim.openstreetmap.org/search?format=json&q=Altenmarkter+Stra%C3%9Fe+11,+Wies"
+      ]
+    },
+    {
+      "id": 88970,
+      "name": "Stützpunkt Gratwein-Straßengel",
+      "sources": [
+        "https://gratwein-strassengel.gv.at/wp-content/uploads/2026/07/Historische-Gebaeude_Broschuere_2026-3-Auflage.pdf",
+        "https://www.meinbezirk.at/graz-umgebung/c-lokales/neue-einsatzfahrzeuge-fuer-das-rote-kreuz-gratkorn_a1723130"
+      ]
+    },
+    {
+      "id": 58014,
+      "name": "Saison-Ortsstelle Obergurgl",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/imst/ortsstellen"
+      ]
+    },
+    {
+      "id": 57819,
+      "name": "Ortsstelle Seefelder Plateau",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/innsbruck-land/ortsstellen",
+        "https://www.roteskreuz.at/tirol/das-rote-kreuz-tirol"
+      ]
+    },
+    {
+      "id": 57825,
+      "name": "Bezirksstelle Wattens",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/das-rote-kreuz-tirol",
+        "https://www.roteskreuz.at/tirol/wattens"
+      ]
+    },
+    {
+      "id": 57862,
+      "name": "Ortsstelle Stubai",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/innsbruck-land/ortsstellen",
+        "https://www.roteskreuz.at/tirol/das-rote-kreuz-tirol"
+      ]
+    },
+    {
+      "id": 58057,
+      "name": "MEDI-CAR Krankentransport GmbH",
+      "sources": [
+        "https://firmen.wko.at/krankentransporte/tirol",
+        "https://firmen.wko.at/medi-car-krankentransport-gmbh/tirol/?firmaid=96485f4f-e5a3-44cf-9f50-26cdb5f2293d"
+      ]
+    },
+    {
+      "id": 88974,
+      "name": "Ortsstelle Wipptal",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/innsbruck-land/ortsstellen",
+        "https://www.roteskreuz.at/tirol/das-rote-kreuz-tirol"
+      ]
+    },
+    {
+      "id": 57822,
+      "name": "Malteser Hospitaldienst Tirol (Innsbruck)",
+      "sources": [
+        "https://www.malteser.at/wer-wir-sind/bundeslaender/tirol-vorarlberg/",
+        "https://www.malteser.at/rettungsdienst/"
+      ]
+    },
+    {
+      "id": 200641,
+      "name": "Wache West (Rotes Kreuz Innsbruck)",
+      "sources": [
+        "https://www.roteskreuz-innsbruck.at/presse/pressemitteilungen/neue-wache-west/"
+      ]
+    },
+    {
+      "id": 57828,
+      "name": "Ortsstelle Brixental",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/kitzbuehel/ortsstellen-im-bezirk-kitzbuehel/ortsstelle-brixental"
+      ]
+    },
+    {
+      "id": 57829,
+      "name": "Ortsstelle Pillerseetal",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/kitzbuehel/ortsstellen-im-bezirk-kitzbuehel/ortsstelle-pillerseetal"
+      ]
+    },
+    {
+      "id": 200642,
+      "name": "Bezirks- und Ortsstelle Kitzbühel",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/kitzbuehel/ortsstellen-im-bezirk-kitzbuehel/ortsstelle-kitzbuehel",
+        "https://www.roteskreuz.at/tirol/kitzbuehel/bezirksstelle-kitzbuehel"
+      ]
+    },
+    {
+      "id": 58063,
+      "name": "Samariterbund Tirol Dienststelle Kirchbichl",
+      "sources": [
+        "https://www.tirol.gv.at/fileadmin/presse/Bilder/Archiv/Platter/Sicherheitsempfang_2022/sicherheitsempfang22_zahlen.pdf",
+        "https://www.top.tirol/unternehmen/kufstein/samariterbund-tirol-rettung-und-soziale-dienste-gemeinnuetzige-gmbh.md"
+      ]
+    },
+    {
+      "id": 57892,
+      "name": "Ortsstelle Defereggental",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/osttirol/ortsstellen",
+        "https://www.roteskreuz.at/tirol/das-rote-kreuz-tirol"
+      ]
+    },
+    {
+      "id": 57893,
+      "name": "Bezirksstelle Osttirol (Lienz)",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/osttirol",
+        "https://www.roteskreuz.at/tirol/osttirol/ortsstellen"
+      ]
+    },
+    {
+      "id": 57608,
+      "name": "Bezirks- und Ortsstelle Schwaz",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/schwaz/bezirksstelle-schwaz",
+        "https://www.tirol.gv.at/fileadmin/presse/Bilder/Archiv/Platter/Sicherheitsempfang_2022/sicherheitsempfang22_zahlen.pdf"
+      ]
+    },
+    {
+      "id": 200643,
+      "name": "Rettungsdienst-Stützpunkt Wiesing",
+      "sources": [
+        "https://www.zillertalfoto.at/2025/12/29/neuer-rettungsdienst-stuetzpunkt-in-wiesing/",
+        "https://www.roteskreuz.at/tirol/schwaz/news/aktuelles"
+      ]
+    },
+    {
+      "id": 58015,
+      "name": "Außenstelle St. Gallenkirch",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-abteilung-bludenz"
+      ]
+    },
+    {
+      "id": 58094,
+      "name": "Außenstelle Sonntag",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-abteilung-bludenz"
+      ]
+    },
+    {
+      "id": 58106,
+      "name": "Rotkreuz-Abteilung Bludenz",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen",
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-abteilung-bludenz"
+      ]
+    },
+    {
+      "id": 57815,
+      "name": "Rotkreuz-Abteilung Bregenzerwald",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-abteilung-bregenzerwald",
+        "https://www.roteskreuz.at/vorarlberg/news/aktuelles/40-jahre-notarztwesen"
+      ]
+    },
+    {
+      "id": 57856,
+      "name": "Rettungszentrale Feldkirch",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-abteilung-feldkirch",
+        "https://www.vol.at/neue-rettungszentrale-in-feldkirch-eroeffnet/4257280"
+      ]
+    },
+    {
+      "id": 57617,
+      "name": "Bezirksstelle Wien-West",
+      "sources": [
+        "https://www.roteskreuz.at/wien/freiwillige-mitarbeit-im-wiener-roten-kreuz/uebersicht-ueber-die-bezirksstellen-des-wiener-roten-kreuzes",
+        "https://www.roteskreuz.at/wien/wien-west/home"
+      ]
+    },
+    {
+      "id": 57618,
+      "name": "Samariterbund Wien Zentrale",
+      "sources": [
+        "https://wien.samariterbund.net/fileadmin/Landesverbaende/Wien/Downloads/Jahresberichte/Jahresbericht_Wien-2025.pdf",
+        "https://www.wien.gv.at/sozialinfo/content/en/10/InstitutionDetail.do?it_1=2097799"
+      ]
+    },
+    {
+      "id": 57619,
+      "name": "Rettungsstation Währing (Herbeckstraße)",
+      "sources": [
+        "https://www.johanniter.at/ueber-uns/chronik/1990-2009",
+        "https://www.johanniter.at/kontakt/pflegenotdienst"
+      ]
+    },
+    {
+      "id": 57937,
+      "name": "Bezirksstelle DDr. Lauda",
+      "sources": [
+        "https://www.roteskreuz.at/wien/freiwillige-mitarbeit-im-wiener-roten-kreuz/uebersicht-ueber-die-bezirksstellen-des-wiener-roten-kreuzes",
+        "https://www.roteskreuz.at/wien/kontakte"
+      ]
+    },
+    {
+      "id": 58051,
+      "name": "Johanniter Center Nord",
+      "sources": [
+        "https://www.johanniter.at/zivildienst/krankentransport-rettungsdienst",
+        "https://www.johanniter.at/kontakt/einsatzzentrale"
+      ]
+    },
+    {
+      "id": 58161,
+      "name": "Bezirksstelle Wien-Nord",
+      "sources": [
+        "https://www.roteskreuz.at/wien/freiwillige-mitarbeit-im-wiener-roten-kreuz/uebersicht-ueber-die-bezirksstellen-des-wiener-roten-kreuzes",
+        "https://www.roteskreuz.at/wien/news/aktuelles/neuer-rettungstransportwagen-des-wiener-roten-kreuzes-fuer-floridsdorf"
+      ]
+    },
+    {
+      "id": 57629,
+      "name": "Krankentransportzentrale Vorarlberg",
+      "sources": [
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/VB/Landesverband/MaKo/Aktuelles/Jahresbericht_2025_Broschuere_HP.pdf"
+      ]
+    }
+  ],
+  "add": [
+    {
+      "id": 9100001,
+      "class": "rescue-samariter",
+      "name": "Rettungsstützpunkt Zurndorf",
+      "operator": "Samariterbund",
+      "street": "Quergasse",
+      "housenumber": "5a",
+      "postcode": "2424",
+      "city": "Zurndorf",
+      "lat": 47.9807588,
+      "lon": 17.0061156,
+      "coordinate_source": "OpenStreetMap (ODbL), Objekt ambulance_station",
+      "reason": "Hauptdienststelle des Samariterbunds laut Rettungsdienst-Verordnung (Landesamtsblatt Burgenland 30/2024); seit 1.8.2023 Nachfolger des Stützpunkts Andau. Im BEV nicht erfasst.",
+      "sources": [
+        "https://apps.bgld.gv.at/web/labl.nsf/xsp/.ibmmodres/domino/OpenAttachment/web/LABL.nsf/F5E86F32D0B9BA8FC1258B6500317E8B/fldFile/Amtsblatt_2024_Stueck%2030.pdf",
+        "https://www.samariterbund.net/fileadmin/downloads/Drucksorten/sam/2023_03_sam-Bund.pdf"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 9100002,
+      "class": "rescue-samariter",
+      "name": "Rettungsstützpunkt Weppersdorf",
+      "operator": "Samariterbund",
+      "street": "Hauptstraße",
+      "housenumber": "57",
+      "postcode": "7331",
+      "city": "Weppersdorf",
+      "lat": 47.5811793,
+      "lon": 16.4262124,
+      "coordinate_source": "OpenStreetMap (ODbL), Objekt ambulance_station",
+      "reason": "Hauptdienststelle des Samariterbunds laut Landesamtsblatt Burgenland 30/2024. Im BEV nicht erfasst.",
+      "sources": [
+        "https://apps.bgld.gv.at/web/labl.nsf/xsp/.ibmmodres/domino/OpenAttachment/web/LABL.nsf/F5E86F32D0B9BA8FC1258B6500317E8B/fldFile/Amtsblatt_2024_Stueck%2030.pdf",
+        "https://www.samariterbund.net/fileadmin/downloads/Drucksorten/Folder-Zivildienst-Rettungsdienst-2024-Samariterbund.pdf"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 9100003,
+      "class": "rescue-samariter",
+      "name": "Samariterbund Gruppe Alkoven",
+      "operator": "Samariterbund",
+      "street": "Margeritenstraße",
+      "housenumber": "4",
+      "postcode": "4072",
+      "city": "Alkoven",
+      "lat": 48.2899174,
+      "lon": 14.1240635,
+      "coordinate_source": "Nominatim/OSM: emergency=ambulance_station 'Samariterbund Alkoven, Margeritenstraße 4'",
+      "reason": "Laut Website asb-alkoven.org betreibt die Gruppe Alkoven Rettungs- und Krankentransport (Rettungs- und Notfallsanitäter:innen rund um die Uhr, Krankentransportfahrzeuge, Leitstelle 0732/2124), Standort Margeritenstraße 4, 4072 Alkoven. Laut News treten am 5. Jänner 2026 neue Zivildiener ihre Ausbildung zum Rettungssanitäter an, die Gruppe ist also aktiv. tips.at 2018: rund 6.000 Notfälle und Krankentransporte im Jahr. In der Datei fehlt der Standort; in Paket 08 sind nur ASB Linz und der Landesverband enthalten.",
+      "sources": [
+        "https://asb-alkoven.org/standorte/",
+        "https://asb-alkoven.org/rettungs-krankentransport/",
+        "https://asb-alkoven.org/drei-neue-zivildiener-verstaerken-ab-5-jaenner-2026-unser-team/",
+        "https://www.tips.at/nachrichten/wilhering/leben/453717-samariterbund-alkoven-mehr-als-6000-einsaetze-im-jahr-2018"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 9100004,
+      "class": "rescue-redcross",
+      "name": "Rotes Kreuz Außenstelle Eggelsberg",
+      "operator": "Rotes Kreuz",
+      "street": "B&R Straße",
+      "housenumber": "2",
+      "postcode": "5142",
+      "city": "Eggelsberg",
+      "lat": 48.0748764,
+      "lon": 12.9894997,
+      "coordinate_source": "Nominatim/OSM: emergency=ambulance_station 'Rotes Kreuz Ortsstelle Eggelsberg, B&R Straße 2'",
+      "reason": "Laut moosdorf.net wurde die Außenstelle Eggelsberg der Ortsstelle Riedersbach 1997 mit einem Sanitätseinsatzfahrzeug eingerichtet. 2015 kam ein neues Rettungsfahrzeug nach Eggelsberg. Beim Neubau Riedersbach 2018 sagte der Ortsstellenleiter, die Außenstelle Eggelsberg bleibe weiter bestehen (tips.at). Die RK-Website führt die Ortsstelle heute als 'Riedersbach/Eggelsberg'. Die Gemeinde Eggelsberg nennt das Rote Kreuz in der B&R Straße 2, 5142 Eggelsberg. OSM erfasst dort eine Rettungswache. Einschränkung: Keine Quelle ab 2024 nennt ausdrücklich ein dort stationiertes Fahrzeug.",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/braunau/ortsstelle-riedersbach",
+        "https://www.eggelsberg.at/Rotes_Kreuz",
+        "https://www.tips.at/nachrichten/ostermiething/land-leute/425737-zeitgemaess-und-modern-die-neue-rot-kreuz-ortsstelle-riedersbach",
+        "https://www.moosdorf.net/2015/01/30-jahre-rot-kreuz-ortstelle/",
+        "https://www.moosdorf.net/2015/07/rotes-kreuz-bericht/"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 9100005,
+      "class": "rescue-samariter",
+      "name": "Samariterbund Linz – Dienststelle Muldenstraße",
+      "operator": "Samariterbund",
+      "street": "Muldenstraße",
+      "housenumber": "3a",
+      "postcode": "4020",
+      "city": "Linz",
+      "lat": 48.276138,
+      "lon": 14.306576,
+      "coordinate_source": "OpenStreetMap/Nominatim: Objekt 'Samariterbund Linz-Muldenstraße' (emergency=ambulance_station)",
+      "reason": "Die Standortliste des ASB OÖ führt die Dienststelle Muldenstraße (Gruppe Linz) neben Reindlstraße und Keferfeld. In OSM ist sie als Rettungswache (ambulance_station) erfasst, Verzeichnisse nennen dafür den Rettungsnotruf 0732 2124. Eine offizielle Fahrzeugliste für den Standort habe ich nicht gefunden (samariterbund.net war per 403 gesperrt).",
+      "sources": [
+        "https://ooe.samariterbund.at/standorte/",
+        "https://www.asb.or.at/kontakt/"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 9100006,
+      "class": "rescue-redcross",
+      "name": "Ortsstelle Zwettl an der Rodl (Notarztstützpunkt)",
+      "operator": "Rotes Kreuz",
+      "street": "Oberneukirchner Straße",
+      "housenumber": "2",
+      "postcode": "4180",
+      "city": "Zwettl an der Rodl",
+      "lat": 48.4659697,
+      "lon": 14.2693786,
+      "coordinate_source": "OpenStreetMap/Nominatim: Objekt 'Rotes Kreuz Notarztdienst Zwettl' (emergency=ambulance_station)",
+      "reason": "RK Urfahr-Umgebung listet die Ortsstelle Zwettl an der Rodl als Notarztdienst-Stützpunkt mit Essen auf Rädern unter einem Dach, rund um die Uhr. Dort ist nur das NEF stationiert, kein RTW/SEW. Das ist der eine Notarztstützpunkt, den die Bezirksstelle neben den fünf Dienststellen nennt. Aufnehmen nur, wenn NEF-Stützpunkte als Wachen zählen.",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/urfahr-umgebung/ortsstelle-zwettl-an-der-rodl",
+        "https://www.roteskreuz.at/oberoesterreich/urfahr-umgebung/bezirksstelle-urfahr-umgebung"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 9100007,
+      "class": "rescue-other",
+      "name": "Rettungsabteilung der Freiwilligen Feuerwehr Admont",
+      "operator": "Sonstiger Rettungsdienst",
+      "street": "Aignerstraße",
+      "housenumber": "600",
+      "postcode": "8911",
+      "city": "Admont",
+      "lat": 47.5731153,
+      "lon": 14.4572649,
+      "coordinate_source": "OpenStreetMap/Nominatim, Knoten 7787275630 'Freiwillige Feuerwehr Admont Abteilung Rettungsdienst' (emergency=ambulance_station)",
+      "reason": "Laut RK-Ortsstellenseite Liezen wird die Region Admont von der Rettungsabteilung der FF Admont rettungsdienstlich betreut und nicht vom Roten Kreuz. Die FF-Website beschreibt sie als eigenständige Rettungsorganisation mit 46 Rettungssanitäter:innen, die rund um die Uhr im Dienst sind, mit eigenem Fuhrpark samt RTW und aktuellen Meldungen aus 2026. Adresse: Aignerstraße 600, 8911 Admont.",
+      "sources": [
+        "https://www.roteskreuz.at/steiermark/liezen/die-ortsstellen",
+        "https://www.feuerwehr-admont.at/rettungsabteilung/die-rettungsabteilung",
+        "https://www.feuerwehr-admont.at/kontakt"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 9100008,
+      "class": "rescue-redcross",
+      "name": "Rotkreuz-Stelle Engelhartstetten",
+      "operator": "Rotes Kreuz",
+      "street": "Friedhofallee",
+      "housenumber": "3",
+      "postcode": "2292",
+      "city": "Engelhartstetten",
+      "lat": 48.1828984,
+      "lon": 16.8803649,
+      "coordinate_source": "Nominatim/OSM node 8849976354 'Rotes Kreuz Dienststelle Engelhartstetten'",
+      "reason": "Die Seite 'Unsere Standorte' von RK Gänserndorf-Marchegg führt die 'Rotkreuz-Stelle Engelhartstetten' im Feuerwehrhaus, Friedhofallee 3, mit Foto 'Fahrzeug vor dem Feuerwehrhaus'. Im Paket fehlt sie. Die Organisationsseite nennt keine Besetzungszeiten.",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/gaenserndorf-marchegg/wer-wir-sind/bezirksstelle-1"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100009,
+      "class": "rescue-redcross",
+      "name": "Rotkreuz-Stützpunkt Graz West",
+      "operator": "Rotes Kreuz",
+      "street": "Straßganger Straße",
+      "housenumber": "384",
+      "postcode": "8054",
+      "city": "Graz",
+      "lat": 47.0376531,
+      "lon": 15.396635,
+      "coordinate_source": "Nominatim (OSM-Objekt „Rotes Kreuz Bezirksstelle Graz-Stadt, Stützpunkt West, 384, Straßganger Straße“)",
+      "reason": "Die aktuelle Standortgrafik „Rotkreuz-Standorte in Graz“ auf der Seite der Bezirksstelle Graz-Stadt nennt den „Rotkreuz-Stützpunkt West, Straßgangerstraße 384, Rettungsdienst“. Die Grafik ist neu genug, dass sie schon das Landessekretariat in der Herrgottwiesgasse 281 zeigt. OSM führt das Objekt an dieser Adresse.",
+      "sources": [
+        "https://www.roteskreuz.at/steiermark/graz-stadt/ueber-die-bezirksstelle-graz-stadt/unsere-bezirksstelle",
+        "https://www.roteskreuz.at/fileadmin/_processed_/0/9/csm_Standorte_15a48783a5.jpg",
+        "https://nominatim.openstreetmap.org/search?format=json&q=Stra%C3%9Fganger+Stra%C3%9Fe+384,+Graz"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100010,
+      "class": "rescue-redcross",
+      "name": "Notarztstützpunkt Kufstein",
+      "operator": "Rotes Kreuz",
+      "street": "Endach",
+      "housenumber": "29",
+      "postcode": "6330",
+      "city": "Kufstein",
+      "lat": 47.57168,
+      "lon": 12.14935,
+      "coordinate_source": "OpenStreetMap way 116819174 (Rotes Kreuz Samariterbund Notarztstützpunkt Kufstein)",
+      "reason": "RK Kufstein, Ortsstelle Kufstein: 'Notarztstützpunkt ... befindet sich auf dem Gelände des Bezirkskrankenhaus Kufstein. Das Notarztfahrzeug ist ... 24 Stunden / 7 Tage die Woche besetzt.' Das ist rund 1,5 km von der Wache Weissachstraße entfernt. Laut Land Tirol 2022 leistet der Samariterbund Notarztdienst in Kufstein (abwechselnd mit RK). Nur NEF, kein RTW.",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/kufstein/ortsstelle-kufstein",
+        "https://www.tirol.gv.at/fileadmin/presse/Bilder/Archiv/Platter/Sicherheitsempfang_2022/sicherheitsempfang22_zahlen.pdf"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100011,
+      "class": "rescue-redcross",
+      "name": "Notarztstützpunkt Reutte",
+      "operator": "Rotes Kreuz",
+      "street": "Krankenhausstraße",
+      "housenumber": "33",
+      "postcode": "6600",
+      "city": "Ehenbichl",
+      "lat": 47.4735,
+      "lon": 10.71081,
+      "coordinate_source": "OpenStreetMap node 10824758590 (Rotes Kreuz Notarztstützpunkt Reutte)",
+      "reason": "RK Reutte listet den 'NEF-Stützpunkt Reutte' als eigene Einheit. Laut meinbezirk.at (12.12.2024) ist das NEF 'am Areal des Bezirkskrankenhauses Reutte, bei der ARA Flugrettung' stationiert, ca. 1,5 km von der Bezirksstelle Innsbrucker Straße 37. Nur NEF.",
+      "sources": [
+        "https://www.roteskreuz.at/tirol/reutte/ortsstellen",
+        "https://www.roteskreuz.at/tirol/reutte/ortsstellen/nef-stuetzpunkt-reutte",
+        "https://www.meinbezirk.at/reutte/c-lokales/notarztversorgung-im-bezirk-reutte-erreicht-naechstes-level_a7060147"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100012,
+      "class": "rescue-redcross",
+      "name": "Notarztstützpunkt St. Johann in Tirol",
+      "operator": "Rotes Kreuz",
+      "street": "Bahnhofstraße",
+      "housenumber": "14",
+      "postcode": "6380",
+      "city": "St. Johann in Tirol",
+      "lat": 47.52028,
+      "lon": 12.42832,
+      "coordinate_source": "OpenStreetMap way 1223341855 (Notarztstützpunkt St. Johann in Tirol, Gebäudeteil am BKH)",
+      "reason": "Land Tirol (Sicherheitsempfang 2022): Samariterbund Tirol 'Notarztdienst in: Kufstein und St. Johann'. OSM: gemeinsamer NEF-Stützpunkt von RK und ASB am BKH, ca. 600 m von der RK-Ortsstelle Salzburgerstraße 14. Nur NEF. Die Hausadresse des BKH habe ich nicht separat geprüft.",
+      "sources": [
+        "https://www.tirol.gv.at/fileadmin/presse/Bilder/Archiv/Platter/Sicherheitsempfang_2022/sicherheitsempfang22_zahlen.pdf"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100013,
+      "class": "rescue-redcross",
+      "name": "Rotes Kreuz Außenstelle Warth",
+      "operator": "Rotes Kreuz",
+      "street": "Warth",
+      "housenumber": "12",
+      "postcode": "6767",
+      "city": "Warth",
+      "lat": 47.2576664,
+      "lon": 10.1822305,
+      "coordinate_source": "Nominatim-Treffer für 'Warth 12, 6767 Warth', der direkt auf das OSM-Objekt 'Rotes Kreuz Außenstelle Warth' (Knoten 8296747188) zeigt.",
+      "reason": "Laut RK-Seite der Ortsstelle Au ist 'seit Dezember 2019 zusätzlich ein Rettungsfahrzeug in Warth stationiert', besetzt mit Hauptamtlichen und Zivildienern und finanziert von der Gemeinde Warth. Die genaue Adresse stammt nur aus OSM, und ob das Fahrzeug ganzjährig oder nur in der Wintersaison dort steht, ist nicht belegt.",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-ortsstelle-au",
+        "https://nominatim.openstreetmap.org/search?format=json&q=Warth%2012%2C%206767%20Warth"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100014,
+      "class": "rescue-redcross",
+      "name": "Walser Rettung Riezlern",
+      "operator": "Rotes Kreuz",
+      "street": "Walserstraße",
+      "housenumber": "24",
+      "postcode": "6991",
+      "city": "Riezlern",
+      "lat": 47.3604077,
+      "lon": 10.1905617,
+      "coordinate_source": "OpenStreetMap-Knoten 2949264917 ('Walser Rettung', Walserstraße 24 Riezlern) über Overpass. Nominatim fand die Adresse nicht.",
+      "reason": "Laut Gemeinde Mittelberg wurde die Walser Rettung 1994 von ÖRK und BRK gegründet. Sie ist für Rettungsdienst und Katastrophenschutz zuständig und 'hält 2 top ausgestattete Rettungswagen vor', Sitz am Ortseingang Riezlern, Walserstraße 24. Sie ist die einzige Rettungswache im Kleinwalsertal.",
+      "sources": [
+        "https://www.gde-mittelberg.at/leben/sicherheit/walser-rettung.html",
+        "https://www.walser-rettung.at/"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100015,
+      "class": "rescue-redcross",
+      "name": "Notarztstützpunkt Bregenz",
+      "operator": "Rotes Kreuz",
+      "street": "Carl-Pedenz-Straße",
+      "housenumber": "2",
+      "postcode": "6900",
+      "city": "Bregenz",
+      "lat": 47.4970497,
+      "lon": 9.7462561,
+      "coordinate_source": "OpenStreetMap-Knoten 8296845705 ('Rotes Kreuz Notarztstützpunkt LKH Bregenz') über Overpass.",
+      "reason": "Laut RK Vorarlberg (40 Jahre Notarztwesen, 2025) gibt es 'fünf Notarztstützpunkte (Bludenz, Feldkirch, Hohenems, Dornbirn und Bregenz)'. Das Rote Kreuz stellt Notfallsanitäter und NEF, die Notärzte gehören zum Ärzteteam des jeweiligen Krankenhauses. Der Stützpunkt am LKH liegt rund 1,1 km von der RK-Abteilung Bregenz entfernt. Die Lage am LKH stammt aus OSM.",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/news/aktuelles/40-jahre-notarztwesen"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100016,
+      "class": "rescue-redcross",
+      "name": "Notarztstützpunkt Dornbirn",
+      "operator": "Rotes Kreuz",
+      "street": "Lustenauerstraße",
+      "housenumber": "4",
+      "postcode": "6850",
+      "city": "Dornbirn",
+      "lat": 47.4061764,
+      "lon": 9.7395085,
+      "coordinate_source": "OpenStreetMap-Knoten 8296856498 ('Rotes Kreuz Notarztstützpunkt Dornbirn') über Overpass. Das Krankenhaus Dornbirn liegt laut Nominatim bei 47.40630, 9.74021 (Lustenauerstraße 4).",
+      "reason": "Laut RK Vorarlberg ist Dornbirn einer der fünf Notarztstützpunkte: RK-Fahrzeug und Notfallsanitäter, Notarzt vom Krankenhaus Dornbirn. Der Stützpunkt liegt rund 1 km von der RK-Abteilung Dornbirn entfernt.",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/news/aktuelles/40-jahre-notarztwesen"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100017,
+      "class": "rescue-redcross",
+      "name": "Notarztstützpunkt Feldkirch",
+      "operator": "Rotes Kreuz",
+      "street": "Carinagasse",
+      "housenumber": "47",
+      "postcode": "6800",
+      "city": "Feldkirch",
+      "lat": 47.2315092,
+      "lon": 9.5793876,
+      "coordinate_source": "OpenStreetMap-Knoten 8296861880 ('Rotes Kreuz Notarztdienst Feldkirch', Carinagasse 47) über Overpass.",
+      "reason": "Laut RK Vorarlberg ist Feldkirch einer der fünf Notarztstützpunkte; 1985 startete dort der erste Notarztwagen am LKH Feldkirch. Der Stützpunkt liegt rund 3 km von der Rettungszentrale Reichsstraße entfernt.",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/news/aktuelles/40-jahre-notarztwesen"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100018,
+      "class": "rescue-samariter",
+      "name": "Samariterbund Rettungsstützpunkt Petritschgasse",
+      "operator": "Samariterbund",
+      "street": "Petritschgasse",
+      "housenumber": "24",
+      "postcode": "1210",
+      "city": "Wien",
+      "lat": 48.2788118,
+      "lon": 16.4356537,
+      "coordinate_source": "Nominatim (OSM-POI 'Samariterbund Wien Floridsdorf', Petritschgasse 24)",
+      "reason": "Am 24.06.2024 eröffnet (OTS-Aussendung). Der Rettungsstützpunkt des Samariterbunds Wien hat Garagen- und Stellplätze für 65 Rettungs- und Krankentransportfahrzeuge, eine Werkstatt und die Leitstelle. Er versorgt vor allem Floridsdorf und Donaustadt. In den BEV-Daten fehlt er, weil er neu ist.",
+      "sources": [
+        "https://www.ots.at/presseaussendung/OTS_20240624_OTS0096/samariterbund-eroeffnet-neuen-rettungsstuetzpunkt-in-wien-floridsdorf",
+        "https://www.feuerwehrobjektiv.at/samariterbund-eroeffnet-neuen-rettungsstuetzpunkt-in-wien-floridsdorf/",
+        "https://www.meinbezirk.at/floridsdorf/c-politik/neuer-rettungsstuetzpunkt-des-samariterbundes-wien_a5615149"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100019,
+      "class": "rescue-redcross",
+      "name": "Wiener Rotes Kreuz – Standort Süd",
+      "operator": "Rotes Kreuz",
+      "street": "Kaffeeweg",
+      "housenumber": "12",
+      "postcode": "1230",
+      "city": "Wien",
+      "lat": 48.1350612,
+      "lon": 16.3506445,
+      "coordinate_source": "Nominatim (OSM-POI 'Wiener Rotes Kreuz Standort Süd', Kaffeeweg 12)",
+      "reason": "Das Wiener Rote Kreuz hat den Standort am 16.07.2025 eröffnet. Dort sind rund um die Uhr bis zu 15 Rettungs- und Krankentransportfahrzeuge im Dienst. Der Standort ersetzt den aufgelassenen Standort des Grünen Kreuzes in der Brunner Straße 54 (id 88968). Die WRK-News und die Jahresbilanz 2025 bestätigen ihn.",
+      "sources": [
+        "https://www.meinbezirk.at/liesing/c-gesundheit/neuer-rettungsstandort-in-liesing-versorgt-wiens-sueden_a7458112",
+        "https://www.5min.at/5202507200739/bis-zu-15-einsatzfahrzeuge-neuer-rettungs-standort-in-liesing-eroeffnet/",
+        "https://www.roteskreuz.at/wien/news/aktuelles/hilfe-auf-die-wien-zaehlt-rettungsdienst-des-wiener-roten-kreuzes-zieht-bilanz-fuer-2025"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 9100020,
+      "class": "rescue-samariter",
+      "name": "Samariterbund Stadlau",
+      "operator": "Samariterbund",
+      "street": "Wiedgasse",
+      "housenumber": "1",
+      "postcode": "1220",
+      "city": "Wien",
+      "lat": 48.2218391,
+      "lon": 16.450425,
+      "coordinate_source": "Nominatim (OSM-POI 'Samariterbund Stadlau', Wiedgasse 1)",
+      "reason": "OSM führt hier eine emergency=ambulance_station 'Samariterbund Stadlau' (patient_transport=yes, Betreiber ASBÖ). Laut Suchergebnissen nennen die Samariterbund-Geosuche und die Zivildienst-Seite 'Zivildienst Rettungssanitäter' den 'Stützpunkt Wiedgasse, Wiedgasse 1, 1220 Wien'. Diese Seiten konnte ich nicht selbst lesen (HTTP 403). Ein 'Stützpunkt Stadlau' ist schon 2012 im Samariterbund-Magazin erwähnt. Belege mittel, nicht offiziell gelesen.",
+      "sources": [
+        "https://nominatim.openstreetmap.org/search?format=json&q=Wiedgasse%201,%201220%20Wien",
+        "https://www.openstreetmap.org/api/0.6/map?bbox=16.4495,48.2212,16.4515,48.2225"
+      ],
+      "checked": "2026-11-06"
+    }
+  ],
+  "hospital_include": [
+    {
+      "code": "K324.1",
+      "name": "Universitätsklinikum Tulln",
+      "reason": "Fusionierter Standort ohne Abteilungsangabe im KA-Verzeichnis; Schwerpunktspital mit Notaufnahme."
+    },
+    {
+      "code": "K324.2",
+      "name": "Landesklinikum Klosterneuburg",
+      "reason": "Fusionierter Standort ohne Abteilungsangabe; Akutspital mit Innerer Medizin."
+    },
+    {
+      "code": "K343.1",
+      "name": "Landesklinikum Korneuburg",
+      "reason": "Fusionierter Standort ohne Abteilungsangabe; Akutspital."
+    },
+    {
+      "code": "K343.2",
+      "name": "Landesklinikum Stockerau",
+      "reason": "Fusionierter Standort ohne Abteilungsangabe; Akutspital."
+    },
+    {
+      "code": "K343.3",
+      "name": "Landesklinikum Hollabrunn",
+      "reason": "Fusionierter Standort ohne Abteilungsangabe; Akutspital."
+    },
+    {
+      "code": "K367.1",
+      "name": "Universitätsklinikum Wiener Neustadt",
+      "reason": "Fusionierter Standort ohne Abteilungsangabe; Schwerpunktspital mit Notaufnahme."
+    },
+    {
+      "code": "K205.2",
+      "name": "Landeskrankenhaus Wolfsberg",
+      "reason": "Standort ohne Abteilungsangabe; Akutspital des Klinikums Klagenfurt."
+    },
+    {
+      "code": "K216.2",
+      "name": "Landeskrankenhaus Hermagor",
+      "reason": "Standort ohne Abteilungsangabe; Akutstandort des LKH Villach."
+    }
+  ],
+  "hospital_names": {
+    "_hinweis": "Gebräuchliche Namen, wo der amtliche Name mehrdeutig oder sehr lang ist.",
+    "K920.1": {
+      "name": "Traumazentrum Wien (AUVA) – Standort Meidling"
+    },
+    "K920.2": {
+      "name": "Traumazentrum Wien (AUVA) – Standort Brigittenau"
+    },
+    "K915.1": {
+      "name": "Franziskus Spital – Standort Margareten"
+    },
+    "K915.2": {
+      "name": "Franziskus Spital – Standort Landstraße"
+    },
+    "K921.3": {
+      "name": "Klinik Penzing"
+    },
+    "K912.1": {
+      "name": "Hanusch-Krankenhaus"
+    },
+    "K921.1": {
+      "name": "Klinik Ottakring"
+    },
+    "K205.1": {
+      "name": "Klinikum Klagenfurt am Wörthersee"
+    },
+    "K673.1": {
+      "name": "LKH Graz II – Standort Graz West"
+    },
+    "K612.1": {
+      "name": "LKH-Universitätsklinikum Graz"
+    },
+    "K612.2": {
+      "name": "LKH-Universitätsklinikum Graz – Standort Weiz"
+    },
+    "K707.1": {
+      "name": "LKH Hochzirl-Natters – Standort Hochzirl"
+    },
+    "K707.2": {
+      "name": "LKH Hochzirl-Natters – Standort Natters"
+    },
+    "K216.1": {
+      "name": "Klinikum Villach"
+    },
+    "K216.3": {
+      "name": "Klinikum Villach – Standort Warmbad"
+    },
+    "K536.1": {
+      "name": "Tauernklinikum – Standort Zell am See"
+    },
+    "K536.2": {
+      "name": "Tauernklinikum – Standort Mittersill"
+    },
+    "K480.1": {
+      "name": "Salzkammergut-Klinikum – Standort Vöcklabruck"
+    },
+    "K480.2": {
+      "name": "Salzkammergut-Klinikum – Standort Bad Ischl"
+    },
+    "K480.3": {
+      "name": "Salzkammergut-Klinikum – Standort Gmunden"
+    }
+  },
+  "hospital_location": [
+    {
+      "code": "K976.1",
+      "bev_id": 111043,
+      "reason": "Adresse im KA-Verzeichnis (Brünner Straße 73) weicht vom BEV-Punkt (Brünner Straße 68) ab; Zuordnung über den Namen."
+    },
+    {
+      "code": "K921.3",
+      "id": 9921003,
+      "lat": 48.206886,
+      "lon": 16.2716163,
+      "reason": "Kein BEV-Punkt vorhanden; Koordinate des Spitalsgebäudes Sanatoriumstraße 2 aus OpenStreetMap (ODbL)."
+    }
+  ],
+  "reclassify": [
+    {
+      "id": 48764,
+      "class": "fire-professional",
+      "operator": "Berufsfeuerwehr",
+      "name": "Zentralfeuerwache Am Hof",
+      "reason": "Hauptwache der Berufsfeuerwehr Wien (Am Hof 9), im BEV nur als Sitz des Landesfeuerwehrverbands geführt.",
+      "checked": "2026-11-05"
+    }
+  ],
+  "relocate": [
+    {
+      "id": 57724,
+      "lat": 48.2285942,
+      "lon": 14.8473159,
+      "street": "Breitenangerstraße",
+      "housenumber": "3",
+      "postcode": "4360",
+      "city": "Grein",
+      "coordinate_source": "Nominatim/OSM: emergency=ambulance_station 'Rotes Kreuz Ortstelle Grein, Breitenangerstraße 3'",
+      "reason": "RK Perg (Website und Jahresbericht 2025) nennt die Ortsstelle Grein in der Breitenangerstraße 3, 4360 Grein. Land OÖ meldete am 27.08.2021 den Spatenstich für eine neue Einsatzzentrale 'auf einem neuen Standort', der vom Hochwasser nicht betroffen ist. Das Gebäude an der BEV-Position (Ufer 2) ist in OSM als 'Ehemalige Ortstelle RK Grein' erfasst. Der neue Standort liegt etwa 600 m entfernt.",
+      "sources": [
+        "https://www.roteskreuz.at/oberoesterreich/perg/grein",
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/OO/BS/Perg/Publikationen/Jahresbericht2025_Mail.pdf",
+        "https://www.land-oberoesterreich.gv.at/264528.htm",
+        "https://nominatim.openstreetmap.org/reverse?format=json&lat=48.2232976&lon=14.8501123&zoom=18"
+      ],
+      "checked": "2026-11-05"
+    },
+    {
+      "id": 57717,
+      "lat": 48.1123602,
+      "lon": 14.575204,
+      "street": "Elisabethstraße",
+      "housenumber": "9",
+      "postcode": "3350",
+      "city": "Haag",
+      "coordinate_source": "Nominatim/OSM way 1299947976 'Rotes Kreuz Bezirksstelle Haag', Elisabethstraße 9",
+      "reason": "Die Bezirksstelle ist 2024 ins neue Sicherheitszentrum Haag übersiedelt (gemeinsam mit der FF, Eröffnung Oktober 2024). Kontaktseite und Bezirksstellenliste des RK NÖ nennen jetzt Elisabethstraße 9. Die alte BEV-Lage Weistracher Straße 8 liegt rund 1 km entfernt. Die Koordinaten der RK-Dienststellenkarte (48.1036/14.5721) zeigen noch auf den Altstandort.",
+      "sources": [
+        "https://www.roteskreuz.at/niederoesterreich/haag/kontakte/bezirksstelle/haben-sie-fragen",
+        "https://www.roteskreuz.at/niederoesterreich/wer-wir-sind-der-landesverband-noe/bezirksstellen",
+        "https://www.noe.gv.at/noe/LH_Mikl-Leitner_besuchte_neues_Sicherheitszentrum_Haag.html",
+        "https://nominatim.openstreetmap.org/search?format=json&q=Elisabethstra%C3%9Fe+9,+Haag,+Nieder%C3%B6sterreich"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 57945,
+      "lat": 48.0620742,
+      "lon": 16.0711811,
+      "street": "Klausenstraße",
+      "housenumber": "719",
+      "postcode": "2534",
+      "city": "Alland",
+      "coordinate_source": "Nominatim/OSM way 1560087043 'Rotes Kreuz Dienststelle Alland'",
+      "reason": "Die neue Rotkreuz-Dienststelle Alland wurde im April 2024 eröffnet. Laut NÖN vom 15.12.2024 war sie nach Hochwasserschaden bald wieder bezugsfertig. Generalplaner kosaplaner nennt 'Rotes Kreuz Alland / Klausenstraße 719'. Der Abstand zur BEV-Lage am Hauptplatz 101 beträgt rund 700 m. RK Baden führt Alland weiterhin als Außenstelle.",
+      "sources": [
+        "https://www.noen.at/baden/nach-hochwasser-rot-kreuz-haus-alland-ist-bald-wieder-bezugsfertig-451862894",
+        "https://www.kosaplaner.at/referenzen/rotes-kreuz-alland-233",
+        "https://www.noen.at/baden/neubau-spatenstich-fuer-die-neue-dienststelle-des-roten-kreuzes-in-alland-370267057",
+        "https://www.roteskreuz.at/niederoesterreich/baden/news/aktuelles/das-rote-kreuz-in-baden"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 133442,
+      "lat": 46.7161658,
+      "lon": 15.2664122,
+      "street": "Altenmarkter Straße",
+      "housenumber": "11",
+      "postcode": "8551",
+      "city": "Wies",
+      "coordinate_source": "Nominatim (OSM-Objekt „Grünes Kreuz Regionalstelle Wies, 11, Altenmarkter Straße“)",
+      "reason": "Die Gruppenseite des Grünen Kreuzes nennt die Regionalstelle Wies (Fahrdienst) in der Altenmarkter Straße 11, 8551 Wies. BEV führt die Stelle in Haiden 3, Vordersdorf, etwa 2 km entfernt. Laut OSM steht die Regionalstelle an der neuen Adresse.",
+      "sources": [
+        "https://www.grueneskreuz-stmk.at/gruppen/",
+        "https://nominatim.openstreetmap.org/search?format=json&q=Altenmarkter+Stra%C3%9Fe+11,+Wies"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 57876,
+      "lat": 47.1365467,
+      "lon": 15.3527122,
+      "street": "Felberstraße",
+      "housenumber": "10",
+      "postcode": "8101",
+      "city": "Gratkorn",
+      "coordinate_source": "Nominatim, Hausnummernbereich Felberstraße 8–18 in Gratkorn (Näherung, das Gebäude ist in OSM noch nicht erfasst)",
+      "reason": "Die Ortsstellenseite des RK Graz-Umgebung nennt jetzt die Felberstraße 10. Spatenstich war am 3.11.2025, Fertigstellung laut RK im September 2026. Die Gleichenfeier fand im März 2026 statt, Übergabe „noch im heurigen Jahr“. Der Nutzungsvertrag am alten Standort auf dem Sappi-Gelände (Brucker Straße 21) läuft im September 2026 aus. Der Neubau liegt etwa 1,4 km östlich. Einen Bericht über den Bezug habe ich nicht gefunden, die Gemeinde Gratwein-Straßengel nennt noch die alte Adresse.",
+      "sources": [
+        "https://www.roteskreuz.at/steiermark/graz-umgebung/die-ortsstellen-1",
+        "https://www.roteskreuz.at/steiermark/graz-umgebung/aktuelles-und-news/spatenstichfeier-in-gratkorn",
+        "https://www.roteskreuz.at/steiermark/graz-umgebung/aktuelles-und-news/gleichenfeier-in-gratkorn",
+        "https://www.meinbezirk.at/graz-umgebung/c-lokales/dachgleiche-beim-roten-kreuz-gratkorn_a8524156",
+        "https://www.meinbezirk.at/graz-umgebung/c-lokales/neue-bleibe-fuer-das-rote-kreuz-gratkorn_a6648306"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 133443,
+      "lat": 46.9639606,
+      "lon": 15.3467963,
+      "street": "Hans-Thalhammer-Straße",
+      "housenumber": "7",
+      "postcode": "8501",
+      "city": "Lieboch",
+      "coordinate_source": "Nominatim (OSM-Objekt „Grünes Kreuz Regionalstelle Lieboch, 7, H. Thalhammer-Straße“)",
+      "reason": "Die Gruppenseite des Grünen Kreuzes nennt die Regionalstelle Lieboch (Fahrdienst und Auslandsrückholdienst) in der Hans-Thalhammerstraße 7. BEV führt Hausnummer 2. Der OSM-Punkt liegt etwa 350 m vom BEV-Punkt entfernt. Die Stelle ist also nicht umgezogen, nur die Koordinaten werden korrigiert.",
+      "sources": [
+        "https://www.grueneskreuz-stmk.at/gruppen/"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 57849,
+      "lat": 47.4304872,
+      "lon": 16.0597131,
+      "street": "Getreideweg",
+      "housenumber": "1",
+      "postcode": "8240",
+      "city": "Friedberg",
+      "coordinate_source": "Nominatim (OSM-Objekt „Rotes Kreuz Ortsstelle Friedberg, 1, Getreideweg“)",
+      "reason": "Laut MeinBezirk vom 6.6.2023 war Spatenstich für eine neue Rotkreuz-Dienststelle im Gewerbepark Friedberg an der B54. Die alte Dienststelle in der Hütterstraße stammt von 1972. Die RK-Dienststellenkarte und OSM führen die Ortsstelle heute im Getreideweg 1, etwa 1,4 km vom BEV-Punkt Hütterstraße 4 entfernt. Die Ortsstelle Friedberg ist laut RK Hartberg eine der 7 Ortsstellen.",
+      "sources": [
+        "https://www.meinbezirk.at/hartberg-fuerstenfeld/c-lokales/in-friedberg-wird-eine-neue-rotkreuz-dienststelle-errichtet_a6089847",
+        "https://www.roteskreuz.at/steiermark/hartberg/freiwillig-engagieren-in-hartberg",
+        "https://nominatim.openstreetmap.org/search?format=json&q=Getreideweg+1,+8240+Friedberg"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 200643,
+      "lat": 47.4046957,
+      "lon": 11.8036729,
+      "street": "Dorf",
+      "housenumber": "104a",
+      "postcode": "6210",
+      "city": "Wiesing",
+      "coordinate_source": "Nominatim (OSM-Objekt 'Rotes Kreuz Ortsstelle Wiesing', Dorf 104a, Wiesing)",
+      "reason": "RK Schwaz und Zillertalfoto (29.12.2025): Am 27.12.2025 wurde ein neuer Rettungsdienst-Stützpunkt in Wiesing eröffnet, mit RTW und KTW, 'neben dem M-Preis bzw. TÜV-Süd'. 'Bereits zuvor war ein Rettungswagen in Strass stationiert, jetzt haben die diensthabenden Mannschaften auch eine ordentliche Unterkunft.' Der RTW-Standort Strass (Gewerbegebiet Nord 193) ist damit nach Wiesing verlegt, ca. 1,6 km entfernt.",
+      "sources": [
+        "https://www.zillertalfoto.at/2025/12/29/neuer-rettungsdienst-stuetzpunkt-in-wiesing/",
+        "https://www.roteskreuz.at/tirol/schwaz/news/aktuelles"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 57813,
+      "lat": 47.4812351,
+      "lon": 9.6754493,
+      "street": "Neulandstraße",
+      "housenumber": "14a",
+      "postcode": "6971",
+      "city": "Hard",
+      "coordinate_source": "OpenStreetMap-Knoten 13580138009 ('81-RA-Hard KAT', Neulandstraße 14, Hard) über Overpass. Nominatim fand die Adresse nicht. Die Koordinaten der RK-Dienststellenkarte zeigen noch auf den alten Standort.",
+      "reason": "Laut RK-Seite hat die Abteilung Hard 'seit dem Jahr 2026 ihren Stützpunkt in der Neulandstraße', Kontaktadresse Neulandstraße 14a. Der alte Standort Falkenweg 21 liegt rund 1,1 km entfernt. Hard ist eine ehrenamtliche KAT-Abteilung, unter anderem mit einem KAT-Krankentransportwagen für Ambulanz- und Brandeinsätze, KAT-LKW, MTW und Feldküchen. Regulären Tagesrettungsdienst fährt sie nicht.",
+      "sources": [
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen/rotkreuz-abteilung-hard",
+        "https://www.roteskreuz.at/vorarlberg/rotkreuz-abteilungen-und-ortsstellen"
+      ],
+      "checked": "2026-11-06"
+    },
+    {
+      "id": 57629,
+      "lat": 47.26749,
+      "lon": 9.60577,
+      "street": "Beim Gräble",
+      "housenumber": "11",
+      "postcode": "6800",
+      "city": "Feldkirch",
+      "coordinate_source": "OpenStreetMap/Nominatim (ODbL)",
+      "reason": "Seit 1.7.2025 Krankentransportzentrale des RK Vorarlberg mit 11 BKTW und 3 Fahrdienstfahrzeugen; die Landesverband-Verwaltung nebenan (Beim Gräble 10) ist nur Büro.",
+      "sources": [
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/VB/Landesverband/MaKo/Aktuelles/Jahresbericht_2025_Broschuere_HP.pdf",
+        "https://www.roteskreuz.at/fileadmin/user_upload/LV/VB/Landesverband/MaKo/Stellenausschreibung/SA_KTPZ_2026.pdf"
+      ],
+      "checked": "2026-11-06"
+    }
+  ]
+}

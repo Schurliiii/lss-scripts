@@ -16,12 +16,24 @@
     "rescue-johanniter": { label: "Johanniter", hint: "Rettungs- und Einsatzstellen", short: "J", color: "#e0a100", kind: "rescue", game: "Rettungswache", prefix: "JUH" },
     "rescue-samariter": { label: "Samariterbund", hint: "ASBÖ", short: "S", color: "#0a6cdf", kind: "rescue", game: "Rettungswache", prefix: "ASB" },
     "rescue-other": { label: "Weitere Rettung", hint: "Wiener Rettung, Malteser u. a.", short: "R", color: "#636366", kind: "rescue", game: "Rettungswache" },
+    hospital: { label: "Krankenhäuser", hint: "Öffentliche Akutspitäler und Unfallkrankenhäuser", short: "H", color: "#0a84ff", kind: "hospital", game: "Krankenhaus" },
+    police: { label: "Polizeiinspektionen", hint: "Bundespolizei, Stand BMI", short: "P", color: "#1c3f94", kind: "police", game: "Polizeiwache" },
+    "police-special": { label: "Autobahn-, Verkehrs- & Grenzpolizei", hint: "API, VI und GPI", short: "A", color: "#4b6cb7", kind: "police", game: "Polizeiwache" },
+  };
+  // Je Art: LSS-Gebäudetyp, Farbe und Bezeichnung im Bau-Dialog.
+  const KIND_META = {
+    fire: { type: "0", color: "#ff6a00", label: "Feuerwache", headline: "NEUE FEUERWACHE", pattern: /feuerwache/i, exact: /^feuerwache$/i },
+    rescue: { type: "2", color: "#ff3b30", label: "Rettungswache", headline: "NEUE RETTUNGSWACHE", pattern: /rettungswache/i, exact: /^rettungswache$/i },
+    hospital: { type: "4", color: "#0a84ff", label: "Krankenhaus", headline: "NEUES KRANKENHAUS", pattern: /krankenhaus/i, exact: /^krankenhaus$/i },
+    police: { type: "6", color: "#1c3f94", label: "Polizeiwache", headline: "NEUE POLIZEIWACHE", pattern: /polizeiwache/i, exact: /^polizeiwache$/i },
   };
   const CLASS_KEYS = Object.keys(CLASS_META);
   // LSS-Gebäudetypen, die einen echten Standort abdecken.
   const FIRE_TYPES = new Set([0, 18]);
   const RESCUE_TYPES = new Set([2, 20]);
   const COMPLEX_TYPES = new Set([22, 23]);
+  const HOSPITAL_TYPES = new Set([4]);
+  const POLICE_TYPES = new Set([6, 19]);
   const DISPATCH_TYPE = 7;
   const AUSTRIA = [[46.37, 9.53], [49.02, 17.16]];
   const SETTINGS_KEY = "lsswp-settings-v1";
@@ -34,7 +46,7 @@
   const state = {
     open: false,
     loading: false,
-    enabled: new Set(Array.isArray(settings.enabled) ? settings.enabled.filter((key) => CLASS_META[key]) : CLASS_KEYS),
+    enabled: initialEnabled(),
     status: ["missing", "built"].includes(settings.status) ? settings.status : "all",
     radius: Number(settings.radius) || 300,
     effects: ["full", "reduced"].includes(settings.effects) ? settings.effects : "auto",
@@ -82,9 +94,11 @@
   launcher.type = "button";
   launcher.title = "Wachenplaner Österreich öffnen";
   launcher.setAttribute("aria-label", "Wachenplaner Österreich öffnen");
-  launcher.innerHTML = `${icon("pin")}<span>Wachenplaner</span>`;
+  launcher.innerHTML = '<svg class="wp-launcher-glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M12 2a7.5 7.5 0 0 0-7.5 7.5c0 5.3 6.2 11.4 6.9 12a.9.9 0 0 0 1.2 0c.7-.6 6.9-6.7 6.9-12A7.5 7.5 0 0 0 12 2Zm-.9 4.2h1.8v2.4h2.4v1.8h-2.4v2.4h-1.8v-2.4H8.7V8.6h2.4Z"/></svg><span>Wachenplaner</span>';
   launcher.addEventListener("click", open);
-  mountLauncher();
+  // Das Symbol gehört nur in die Navigationsleiste der Hauptseite. Unterseiten wie
+  // /buildings/… oder /vehicles/…/zuweisung haben eine andere Leiste (oder keine).
+  if (location.pathname === "/" || globalThis.LSS_TEST_PAGE) mountLauncher();
 
   applyTheme();
   // LSS ändert Klassen und Stile an <html>/<body> häufig; die Theme-Erkennung
@@ -140,8 +154,15 @@
     }
   }
 
+  // Neu hinzugekommene Klassen (z. B. Krankenhäuser) sind auch bei gespeicherten Einstellungen sichtbar.
+  function initialEnabled() {
+    if (!Array.isArray(settings.enabled)) return new Set(CLASS_KEYS);
+    const known = Array.isArray(settings.known) ? settings.known : CLASS_KEYS.filter((key) => !["hospital", "police", "police-special"].includes(key));
+    return new Set([...settings.enabled.filter((key) => CLASS_META[key]), ...CLASS_KEYS.filter((key) => !known.includes(key))]);
+  }
+
   function saveSettings() {
-    const value = JSON.stringify({ enabled: [...state.enabled], status: state.status, radius: state.radius, effects: state.effects });
+    const value = JSON.stringify({ enabled: [...state.enabled], known: CLASS_KEYS, status: state.status, radius: state.radius, effects: state.effects });
     try {
       if (typeof GM_setValue === "function") GM_setValue(SETTINGS_KEY, value);
       else localStorage.setItem(SETTINGS_KEY, value);
@@ -242,8 +263,8 @@
       host.appendChild(launcher);
       return;
     }
-    if (!launcher.isConnected) document.body.appendChild(launcher);
-    if (attempt < 20) setTimeout(() => mountLauncher(attempt + 1), 250);
+    // Kein schwebender Ersatzknopf: lieber warten, bis die Leiste da ist.
+    if (attempt < 40) setTimeout(() => mountLauncher(attempt + 1), 250);
   }
 
   async function fetchJson(url) {
@@ -340,7 +361,7 @@
       maxZoom: 19,
       keepBuffer: 4,
       updateWhenZooming: false,
-      attribution: 'Basemap &copy; Esri · Standorte: <a href="https://www.bev.gv.at/" target="_blank" rel="noopener">BEV</a>, CC BY 4.0',
+      attribution: 'Basemap &copy; Esri · Standorte: <a href="https://www.bev.gv.at/" target="_blank" rel="noopener">BEV</a> (CC BY 4.0), BMI, BMASGPK, teils &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OSM</a>',
     }).addTo(map);
     clusters = Leaflet.markerClusterGroup({
       showCoverageOnHover: false,
@@ -388,7 +409,7 @@
         <button class="wp-handle" type="button" data-action="toggle-sheet" aria-label="Bereich ein- oder ausklappen"><span></span></button>
         <header class="wp-head">
           <span class="wp-app-icon" aria-hidden="true"><i></i><i></i><i></i></span>
-          <div><h1>Wachenplaner</h1><p>Feuerwehr &amp; Rettung · Österreich</p></div>
+          <div><h1>Wachenplaner</h1><p>Einsatzstandorte · Österreich</p></div>
           <button class="wp-icon-button" type="button" data-action="close" aria-label="Wachenplaner schließen">${icon("close")}</button>
         </header>
         <form class="wp-search" data-ref="searchForm" role="search">
@@ -488,7 +509,7 @@
       key: `bev-${id}`,
       className,
       kind: CLASS_META[className].kind,
-      name: name || operator || (className.startsWith("fire") ? "Feuerwache" : "Rettungswache"),
+      name: name || operator || KIND_META[CLASS_META[className].kind].label,
       operator,
       address: [[street, houseNumber].filter(Boolean).join(" "), [postcode, city].filter(Boolean).join(" ")].filter(Boolean).join(", "),
       districtId: String(districtId || ""),
@@ -557,7 +578,7 @@
         <div><dt>Im Spiel</dt><dd>${escapeHtml(meta.game)}</dd></div>
       </dl>
       <div class="wp-popup-actions">
-        <button class="wp-button ${record.match ? "ghost" : "primary"} wide" type="button" data-action="build" data-key="${escapeHtml(record.key)}">${record.match ? "Trotzdem zusätzlich bauen" : "Wache bauen"}</button>
+        <button class="wp-button ${record.match ? "ghost" : "primary"} wide" type="button" data-action="build" data-key="${escapeHtml(record.key)}">${record.match ? "Trotzdem zusätzlich bauen" : `${KIND_META[record.kind].label} bauen`}</button>
         <div><button class="wp-button ghost" type="button" data-action="copy" data-key="${escapeHtml(record.key)}">Koordinaten kopieren</button><a class="wp-button ghost" href="https://www.openstreetmap.org/?mlat=${record.lat}&mlon=${record.lon}#map=17/${record.lat}/${record.lon}" target="_blank" rel="noopener">Karte ↗</a></div>
       </div>`;
     return element;
@@ -569,6 +590,8 @@
     if (FIRE_TYPES.has(type)) return ["fire"];
     if (RESCUE_TYPES.has(type)) return ["rescue"];
     if (COMPLEX_TYPES.has(type)) return ["fire", "rescue"];
+    if (HOSPITAL_TYPES.has(type)) return ["hospital"];
+    if (POLICE_TYPES.has(type)) return ["police"];
     return [];
   }
 
@@ -763,7 +786,7 @@
     ref("coverageBar").style.width = `${scope.length ? (built / scope.length) * 100 : 0}%`;
     ref("coverageText").textContent = `${formatNumber(built)} von ${formatNumber(scope.length)} gebaut (${scope.length ? Math.round((built / scope.length) * 100) : 0} %)`;
     if (!missing.length) {
-      list.innerHTML = '<li class="wp-empty"><strong>Alles gebaut 🎉</strong>In diesem Gebiet fehlt keine Wache der gewählten Organisationen.</li>';
+      list.innerHTML = '<li class="wp-empty"><strong>Alles gebaut 🎉</strong>In diesem Gebiet fehlt kein Standort der gewählten Organisationen.</li>';
       more.hidden = true;
       return;
     }
@@ -992,7 +1015,7 @@
       station: {
         key: String(station.key || ""),
         name: String(station.name || "Neue Wache").slice(0, 120),
-        kind: station.kind === "rescue" ? "rescue" : "fire",
+        kind: KIND_META[station.kind] ? station.kind : "fire",
         label: String(station.label || ""),
         address: String(station.address || ""),
         district: String(station.district || ""),
@@ -1051,11 +1074,10 @@
     build.fields = fields;
     build.submit = submit;
     build.typeOptions = options(fields.type);
-    const kindPattern = build.station.kind === "rescue" ? /rettungswache/i : /feuerwache/i;
-    const exactPattern = build.station.kind === "rescue" ? /^rettungswache$/i : /^feuerwache$/i;
-    const preferredType = build.typeOptions.find((option) => exactPattern.test(option.label))
-      || build.typeOptions.find((option) => option.value === (build.station.kind === "rescue" ? "2" : "0"))
-      || build.typeOptions.find((option) => kindPattern.test(option.label));
+    const kindMeta = KIND_META[build.station.kind];
+    const preferredType = build.typeOptions.find((option) => kindMeta.exact.test(option.label))
+      || build.typeOptions.find((option) => option.value === kindMeta.type)
+      || build.typeOptions.find((option) => kindMeta.pattern.test(option.label));
     build.typeValue = preferredType?.value ?? fields.type.value;
     build.dispatchOptions = options(fields.dispatch);
     const nearest = build.buildings
@@ -1165,6 +1187,8 @@
 
   function buildingKindMatches(building, kind) {
     const type = Number(building.building_type);
+    if (kind === "hospital") return HOSPITAL_TYPES.has(type);
+    if (kind === "police") return POLICE_TYPES.has(type);
     return kind === "rescue" ? RESCUE_TYPES.has(type) : FIRE_TYPES.has(type);
   }
 
@@ -1188,9 +1212,9 @@
       return;
     }
     const station = dialog.station;
-    const glyph = `<span class="wp-dialog-icon" style="background:${station.kind === "rescue" ? "#ff3b30" : "#ff6a00"}">${icon("building")}</span>`;
+    const glyph = `<span class="wp-dialog-icon" style="background:${KIND_META[station.kind].color}">${icon("building")}</span>`;
     if (dialog.done) {
-      element.innerHTML = wrap(`${header("NEUE WACHE", dialog.done.caption || station.name, glyph)}
+      element.innerHTML = wrap(`${header(KIND_META[station.kind].headline, dialog.done.caption || station.name, glyph)}
         <div class="wp-dialog-body wp-center"><div class="wp-success">${icon("check")}</div><p class="wp-dialog-text"><b>${escapeHtml(dialog.done.caption || station.name)}</b> wurde gebaut und ist im Wachenplaner als erledigt markiert.</p>
         <div class="wp-dialog-actions center"><a class="wp-button ghost" href="/buildings/${Number(dialog.done.id)}" target="_blank" rel="noopener">Wache öffnen ${icon("external")}</a><button type="button" class="wp-button primary" data-action="dialog-close">Fertig</button></div></div>`);
       return;
@@ -1246,7 +1270,7 @@
     }
     const marker = Leaflet.marker([dialog.lat, dialog.lon], {
       draggable: true,
-      icon: Leaflet.divIcon({ className: "wp-drag-icon", html: `<div style="--c:${dialog.station.kind === "rescue" ? "#ff3b30" : "#ff6a00"}"></div>`, iconSize: [26, 26], iconAnchor: [13, 13] }),
+      icon: Leaflet.divIcon({ className: "wp-drag-icon", html: `<div style="--c:${KIND_META[dialog.station.kind].color}"></div>`, iconSize: [26, 26], iconAnchor: [13, 13] }),
     }).addTo(miniMap);
     marker.on("dragend", () => {
       const position = marker.getLatLng();

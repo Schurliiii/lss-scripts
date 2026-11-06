@@ -5,7 +5,7 @@ Zwei unabhängige Tampermonkey-Scripts für [leitstellenspiel.de](https://www.le
 | | Script | Wofür | Installieren |
 |---|---|---|---|
 | <img src="lss_verwaltung/assets/icon.png" width="32" alt=""> | **LSS Verwaltung** | Fuhrpark, Personal, Wachen, Ausbildungen, Ausbauten, Auslastung und Karte auf einen Blick – mit Bearbeitung direkt im Panel. Für alle Spieler. | [**Installieren**](https://raw.githubusercontent.com/Schurliiii/lss-scripts/main/lss_verwaltung/dist/lss-verwaltung.user.js) |
-| <img src="lss_einsatzkarte/assets/icon.png" width="32" alt=""> | **LSS Wachenplaner Österreich** | Alle 5.606 echten Feuerwehr- und Rettungsstandorte Österreichs: zeigt, welche du schon gebaut hast, welche fehlen, und baut fehlende per Klick. | [**Installieren**](https://raw.githubusercontent.com/Schurliiii/lss-scripts/main/lss_einsatzkarte/dist/lss-wachenplaner.user.js) |
+| <img src="lss_einsatzkarte/assets/icon.png" width="32" alt=""> | **LSS Wachenplaner Österreich** | Alle echten Feuerwehr- und Rettungsstandorte (5.563), Polizeiinspektionen (812) und Akutspitäler (125) Österreichs: zeigt, welche du schon gebaut hast, welche fehlen, und baut fehlende per Klick. | [**Installieren**](https://raw.githubusercontent.com/Schurliiii/lss-scripts/main/lss_einsatzkarte/dist/lss-wachenplaner.user.js) |
 
 ## Installation
 
@@ -26,6 +26,6 @@ Tampermonkey prüft regelmäßig auf neue Versionen und zeigt sie an – ein Kli
 
 ## Datenquellen
 
-Standorte: BEV Digitales Landschaftsmodell Bauten, Stichtag 23.03.2026 (CC BY 4.0). Bezirke: Statistik Austria, Politische Bezirke 2026, sowie GeoSphere Austria (CC BY 4.0). Fahrzeug- und Gebäudekatalog: LSS-Manager.
+Standorte: BEV Digitales Landschaftsmodell Bauten, Stichtag 23.03.2026 (CC BY 4.0). Polizei: Polizeidienststellen Österreich des Innenministeriums (Open Government Data), Stand 18.10.2026. Krankenhäuser: Krankenanstalten-Verzeichnis des Gesundheitsministeriums, Stand 18.09.2026; einzelne ergänzte Koordinaten © OpenStreetMap-Mitwirkende (ODbL). Bezirke: Statistik Austria, Politische Bezirke 2026, sowie GeoSphere Austria (CC BY 4.0). Fahrzeug- und Gebäudekatalog: LSS-Manager.
 
 Diese Scripts sind Spielhilfen und stehen in keiner Verbindung zum Betreiber von Leitstellenspiel.
