@@ -40,6 +40,14 @@
     manager: null,
     courseAssistant: null,
     gameView: null,
+    // Fahrzeug-Editor: offene Änderungen je Fahrzeug-ID, Speicherstatus, Umbau-Optionen.
+    vehicleEdits: {},
+    vehicleEditStatus: {},
+    vehicleEditOptions: {},
+    vehicleEditBuilding: "all",
+    vehicleEditSaving: false,
+    refit: null,
+    refitStarted: {},
     build: null,
     mapInstance: null,
     mapMarkers: new Map(),
@@ -107,6 +115,7 @@
         <span class="lssfo-tab-indicator" aria-hidden="true"></span>
         <button type="button" data-tab="dashboard"><span class="lssfo-tab-symbol" aria-hidden="true">${icon("dashboard")}</span><span>Übersicht</span><b data-tab-count="dashboard">0</b></button>
         <button type="button" data-tab="vehicles"><span class="lssfo-tab-symbol" aria-hidden="true">${icon("vehicle")}</span><span>Fahrzeuge</span><b data-tab-count="vehicles">0</b></button>
+        <button type="button" data-tab="edit"><span class="lssfo-tab-symbol" aria-hidden="true">${icon("edit")}</span><span>Bearbeiten</span><b data-tab-count="edit">0</b></button>
         <button type="button" data-tab="buildings"><span class="lssfo-tab-symbol" aria-hidden="true">${icon("building")}</span><span>Wachen</span><b data-tab-count="buildings">0</b></button>
         <button type="button" data-tab="regions"><span class="lssfo-tab-symbol" aria-hidden="true">${icon("region")}</span><span>Gebiete</span><b data-tab-count="regions">0</b></button>
         <button type="button" data-tab="extensions"><span class="lssfo-tab-symbol" aria-hidden="true">${icon("extension")}</span><span>Ausbauten</span><b data-tab-count="extensions">0</b></button>
@@ -136,7 +145,8 @@
     </section>
     <div id="lssfo-manager" class="lssfo-manager" hidden></div>
     <div id="lssfo-course-assistant" class="lssfo-manager" hidden></div>
-    <div id="lssfo-game-view" class="lssfo-manager" hidden></div>`;
+    <div id="lssfo-game-view" class="lssfo-manager" hidden></div>
+    <div id="lssfo-refit" class="lssfo-manager" hidden></div>`;
   document.body.appendChild(shell);
   let shellCloseTimer = 0;
   if (standaloneMode) document.documentElement.classList.add("lssfo-standalone");
@@ -171,6 +181,10 @@
     render();
   });
   shell.addEventListener("input", (event) => {
+    if (event.target.matches?.('[data-edit-field="caption"]')) {
+      setVehicleEdit(Number(event.target.dataset.editId), "caption", event.target.value);
+      return;
+    }
     if (event.target.id !== "lssfo-manager-person-search") return;
     const query = event.target.value.trim().toLocaleLowerCase("de");
     if (state.manager) state.manager.personQuery = query;
@@ -179,6 +193,27 @@
     }
   });
   shell.addEventListener("change", (event) => {
+    if (event.target.matches?.('[data-edit-field="max"], [data-edit-field="type"]')) {
+      setVehicleEdit(Number(event.target.dataset.editId), event.target.dataset.editField, event.target.value);
+      return;
+    }
+    if (event.target.id === "lssfo-refit-preset") {
+      applyRefitPreset(event.target.value);
+      return;
+    }
+    if (event.target.matches?.("[data-refit-field]")) {
+      if (state.refit) {
+        state.refit.values[event.target.dataset.refitField] = event.target.value;
+        state.refit.confirming = false;
+        updateRefitFooter();
+      }
+      return;
+    }
+    if (event.target.id === "lssfo-edit-building") {
+      state.vehicleEditBuilding = event.target.value;
+      renderContent();
+      return;
+    }
     if (event.target.id === "lssfo-theme-mode") {
       state.theme = event.target.value;
       saveSettings({ theme: state.theme });
@@ -252,6 +287,7 @@
     if (event.key === "Escape" && document.documentElement.classList.contains("lssfo-lightbox-front")) return;
     if (event.key === "Escape" && state.build) closeBuildDialog();
     else if (event.key === "Escape" && state.gameView) closeGameView();
+    else if (event.key === "Escape" && state.refit) closeRefit();
     else if (event.key === "Escape" && state.courseAssistant) closeCourseAssistant();
     else if (event.key === "Escape" && state.manager) closeManager();
     else if (event.key === "Escape" && state.open) closeDashboard();
@@ -473,6 +509,15 @@
     }
     const action = event.target.closest("[data-action]")?.dataset.action;
     if (action === "close") closeDashboard();
+    if (action === "edit-save-all") void saveVehicleEdits();
+    if (action === "edit-discard") discardVehicleEdits();
+    if (action === "edit-replace") applyNameReplace();
+    if (action === "edit-load-building") void loadBuildingOptions();
+    if (action === "refit-open") void openRefit(Number(event.target.closest("[data-edit-id]").dataset.editId));
+    if (action === "refit-close") closeRefit();
+    if (action === "refit-confirm") confirmRefit();
+    if (action === "refit-submit") void submitRefit();
+    if (action === "edit-load-options") void loadVehicleOptions(Number(event.target.closest("[data-edit-id]").dataset.editId));
     if (action === "game-view-close") closeGameView();
     if (action === "game-view-back") {
       try { shell.querySelector("#lssfo-game-frame")?.contentWindow?.history.back(); } catch { /* Verlauf nicht verfügbar. */ }
@@ -501,6 +546,11 @@
     }
     if (action === "course-open") openCourseAssistant();
     if (action === "course-close") closeCourseAssistant();
+    if (action === "course-open-school" && state.courseAssistant?.schoolId) {
+      const schoolId = state.courseAssistant.schoolId;
+      closeCourseAssistant();
+      openGameLightbox(`/buildings/${schoolId}`);
+    }
     if (action === "table-sort") {
       const control = event.target.closest("[data-sort-table]");
       changeTableSort(control.dataset.sortTable, Number(control.dataset.sortColumn));
@@ -736,6 +786,7 @@
     const tabCounts = {
       dashboard: state.operationalModel?.alerts.length || 0,
       vehicles: state.vehicles.length,
+      edit: Object.keys(state.vehicleEdits).length,
       buildings: state.buildings.length,
       regions: state.operationalModel?.regions.length || 0,
       extensions: state.operationalModel?.extensions.filter((entry) => entry.status !== "missing").length || 0,
@@ -809,6 +860,7 @@
     }
     if (state.tab === "dashboard") renderDashboard(content);
     if (state.tab === "vehicles") renderVehicles(content);
+    if (state.tab === "edit") renderVehicleEditor(content);
     if (state.tab === "buildings") renderBuildings(content);
     if (state.tab === "regions") renderRegions(content);
     if (state.tab === "extensions") renderExtensions(content);
@@ -1202,6 +1254,387 @@
 
   function formatDecimal(value) {
     return decimalFormat.format(Number(value || 0));
+  }
+
+  /* ---------- Fahrzeug umrüsten (Seite „Fahrzeug umrüsten“ des Spiels) ---------- */
+
+  // Sucht auf der Fahrzeugseite den Link „Umrüsten“. Ohne Link ist keine Umrüstung möglich.
+  async function findRefitUrl(id) {
+    const doc = new DOMParser().parseFromString(await fetchPage(`/vehicles/${id}`), "text/html");
+    const link = [...doc.querySelectorAll("a[href]")].find((anchor) => /umrüst/i.test(`${anchor.textContent} ${anchor.title}`)
+      || new RegExp(`/vehicles/${id}/(?:umruest|refit|upgrade|conversion)`, "i").test(anchor.getAttribute("href") || ""));
+    return link ? new URL(link.getAttribute("href"), location.origin).pathname + new URL(link.getAttribute("href"), location.origin).search : null;
+  }
+
+  // Liest das Umrüst-Formular allgemein: Vorlage, Zahlenfelder (mit Grenzen) und den Credits-Knopf.
+  function parseRefitForm(html) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const submits = [...doc.querySelectorAll('button, input[type="submit"]')];
+    const creditButton = submits.find((button) => /credits/i.test(button.textContent || button.value || ""));
+    const form = creditButton?.closest("form") || creditButton?.form || [...doc.querySelectorAll("form")].find((entry) => /umrüst/i.test(entry.textContent)) || null;
+    if (!form) throw new Error("Umrüst-Formular nicht gefunden");
+    const textOf = (element) => (element?.textContent || "").replace(/\s+/g, " ").trim();
+    const preset = form.querySelector("select");
+    const inputs = [...form.querySelectorAll("input")].filter((input) => !["hidden", "submit", "button", "checkbox", "radio", "range"].includes((input.type || "text").toLowerCase()));
+    const fields = inputs.map((input, index) => {
+      const block = input.closest(".form-group") || input.closest(".row")?.parentElement || input.parentElement;
+      const heading = block?.querySelector("label, strong, b, h4, h5") || null;
+      const range = block?.querySelector('input[type="range"], [data-slider-min], [data-min]');
+      const number = (...values) => values.map((value) => (value === null || value === undefined || value === "" ? NaN : Number(value))).find(Number.isFinite);
+      return {
+        key: input.name || input.id || `field-${index}`,
+        label: textOf(heading) || input.name || `Wert ${index + 1}`,
+        hint: textOf(block?.querySelector("p, .help-block, small")),
+        value: input.value,
+        min: number(input.min, range?.min, range?.dataset?.sliderMin, range?.dataset?.min),
+        max: number(input.max, range?.max, range?.dataset?.sliderMax, range?.dataset?.max),
+      };
+    });
+    return {
+      form,
+      info: textOf(doc.querySelector(".alert-info, .alert")),
+      preset: preset ? { label: textOf(preset.closest(".input-group, .form-group")?.querySelector(".input-group-addon, label")) || "Umrüstung", value: preset.value, options: [...preset.options].map((option) => ({ value: option.value, label: textOf(option), data: { ...option.dataset } })) } : null,
+      fields,
+      creditLabel: textOf(creditButton) || creditButton?.value || "Mit Credits umrüsten",
+      creditName: creditButton?.name || "",
+      creditValue: creditButton?.value || "",
+      creditAction: creditButton?.getAttribute("formaction") || "",
+    };
+  }
+
+  async function openRefit(id) {
+    const vehicle = state.analyzed.find((entry) => entry.id === id);
+    const url = state.vehicleEditOptions[id]?.refitUrl;
+    if (!url) return;
+    state.refit = { id, caption: vehicle?.caption || `Fahrzeug ${id}`, url, loading: true, values: {}, confirming: false };
+    renderRefit();
+    try {
+      const parsed = parseRefitForm(await fetchPage(url));
+      Object.assign(state.refit, parsed, { loading: false, preset: parsed.preset, values: Object.fromEntries(parsed.fields.map((field) => [field.key, field.value])) });
+      if (parsed.preset) state.refit.values.__preset = parsed.preset.value;
+    } catch (error) {
+      Object.assign(state.refit, { loading: false, error: error.message });
+    }
+    renderRefit();
+  }
+
+  function closeRefit() {
+    state.refit = null;
+    const element = shell.querySelector("#lssfo-refit");
+    if (element) {
+      element.hidden = true;
+      element.innerHTML = "";
+    }
+  }
+
+  // Vorlage gewählt: Werte übernehmen, wenn das Spiel sie an der Option mitliefert (data-Attribute).
+  function applyRefitPreset(value) {
+    const refit = state.refit;
+    if (!refit?.preset) return;
+    refit.values.__preset = value;
+    refit.confirming = false;
+    const option = refit.preset.options.find((entry) => entry.value === value);
+    for (const field of refit.fields) {
+      const short = field.key.replace(/^.*\[|\]$/g, "");
+      const candidates = Object.entries(option?.data || {}).filter(([key]) => key.toLowerCase().includes(short.toLowerCase().replace(/_/g, "")));
+      if (candidates.length) refit.values[field.key] = String(candidates[0][1]);
+      else if (/^max/i.test(value) && Number.isFinite(field.max)) refit.values[field.key] = String(field.max);
+    }
+    renderRefit();
+  }
+
+  function renderRefit() {
+    const element = shell.querySelector("#lssfo-refit");
+    const refit = state.refit;
+    if (!refit) {
+      element.hidden = true;
+      return;
+    }
+    element.hidden = false;
+    let body;
+    if (refit.loading) body = '<div class="lssfo-empty">Umrüst-Möglichkeiten werden geladen …</div>';
+    else if (refit.error) body = `<div class="lssfo-empty">Die Umrüstung konnte nicht geladen werden: ${escapeHtml(refit.error)}</div>`;
+    else if (refit.done) body = `<div class="lssfo-empty">${badge("Umrüstung gestartet", "ok")}<p>${escapeHtml(refit.caption)} wird umgerüstet und steht während der Umrüstung nicht zur Verfügung.</p></div>`;
+    else {
+      const preset = refit.preset ? `<label class="lssfo-refit-preset">${escapeHtml(refit.preset.label)}<select id="lssfo-refit-preset">${refit.preset.options.map((option) => `<option value="${escapeHtml(option.value)}"${option.value === refit.values.__preset ? " selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}</select></label>` : "";
+      const fields = refit.fields.map((field) => `<label class="lssfo-refit-field"><strong>${escapeHtml(field.label)}</strong>${field.hint ? `<small>${escapeHtml(field.hint)}</small>` : ""}<span><input type="number" data-refit-field="${escapeHtml(field.key)}" value="${escapeHtml(refit.values[field.key] ?? "")}"${Number.isFinite(field.min) ? ` min="${field.min}"` : ""}${Number.isFinite(field.max) ? ` max="${field.max}"` : ""}>${Number.isFinite(field.min) && Number.isFinite(field.max) ? `<em>${formatNumber(field.min)} – ${formatNumber(field.max)}</em>` : ""}</span></label>`).join("");
+      body = `${refit.info ? `<div class="lssfo-callout"><span>${escapeHtml(refit.info)}</span></div>` : ""}${preset}<div class="lssfo-refit-grid">${fields || '<div class="lssfo-empty lssfo-empty-small">Für dieses Fahrzeug gibt es keine einstellbaren Werte.</div>'}</div>`;
+    }
+    element.innerHTML = `<div class="lssfo-manager-backdrop" data-action="refit-close"></div>
+      <aside class="lssfo-course-card lssfo-refit-card" role="dialog" aria-modal="true" aria-label="Fahrzeug umrüsten">
+        <header class="lssfo-manager-header"><div><span>FAHRZEUG UMRÜSTEN</span><h2>${escapeHtml(refit.caption)}</h2></div><button type="button" class="lssfo-icon-btn" data-action="refit-close" aria-label="Schließen">${icon("close")}</button></header>
+        <div class="lssfo-refit-body">${body}</div>
+        <footer class="lssfo-refit-footer" id="lssfo-refit-footer"></footer>
+      </aside>`;
+    updateRefitFooter();
+  }
+
+  function updateRefitFooter() {
+    const footer = shell.querySelector("#lssfo-refit-footer");
+    const refit = state.refit;
+    if (!footer || !refit) return;
+    if (refit.loading || refit.error || refit.done) {
+      footer.innerHTML = `<button type="button" class="lssfo-btn" data-action="refit-close">Schließen</button>`;
+      return;
+    }
+    const invalid = refit.fields.find((field) => {
+      const value = Number(refit.values[field.key]);
+      return !Number.isFinite(value) || (Number.isFinite(field.min) && value < field.min) || (Number.isFinite(field.max) && value > field.max);
+    });
+    const message = invalid ? `„${escapeHtml(invalid.label)}“ liegt außerhalb des erlaubten Bereichs.`
+      : refit.confirming ? `<strong>Wirklich umrüsten?</strong> Bezahlt wird mit Credits (${escapeHtml(refit.creditLabel.replace(/^.*\(|\).*$/g, ""))} laut Spiel für die Ausgangswerte – bei geänderten Werten berechnet das Spiel den Preis neu). Das Fahrzeug steht während der Umrüstung nicht zur Verfügung.`
+        : "Coins werden nie verwendet. Erst nach Bestätigung wird umgerüstet.";
+    footer.innerHTML = `<span class="lssfo-refit-note">${refit.submitting ? "Wird an das Spiel übertragen …" : message}</span>
+      <button type="button" class="lssfo-btn" data-action="refit-close">Abbrechen</button>
+      ${refit.confirming
+        ? `<button type="button" class="lssfo-btn lssfo-btn-primary" data-action="refit-submit"${invalid || refit.submitting ? " disabled" : ""}>Ja, mit Credits umrüsten</button>`
+        : `<button type="button" class="lssfo-btn lssfo-btn-primary" data-action="refit-confirm"${invalid ? " disabled" : ""}>${escapeHtml(refit.creditLabel)}</button>`}`;
+  }
+
+  function confirmRefit() {
+    if (!state.refit) return;
+    state.refit.confirming = true;
+    updateRefitFooter();
+  }
+
+  async function submitRefit() {
+    const refit = state.refit;
+    if (!refit?.form || refit.submitting) return;
+    refit.submitting = true;
+    updateRefitFooter();
+    try {
+      const form = refit.form;
+      if (refit.preset && refit.values.__preset !== undefined) form.querySelector("select").value = refit.values.__preset;
+      for (const field of refit.fields) {
+        const input = form.querySelector(`[name="${CSS.escape(field.key)}"], #${CSS.escape(field.key)}`);
+        if (input) input.value = refit.values[field.key];
+        // Zugehörige Schieberegler im selben Block mitziehen, falls das Spiel deren Wert ausliest.
+        const slider = input?.closest(".form-group, div")?.querySelector('input[type="range"]');
+        if (slider) slider.value = refit.values[field.key];
+      }
+      if (refit.creditAction) form.setAttribute("action", refit.creditAction);
+      const response = await submitParsedForm(form, refit.creditName ? [[refit.creditName, refit.creditValue]] : []);
+      const answer = new DOMParser().parseFromString(await response.text().catch(() => ""), "text/html");
+      const problem = answer.querySelector(".alert-danger");
+      if (problem && /credit|nicht genug|fehler|ungültig/i.test(problem.textContent)) throw new Error(problem.textContent.replace(/\s+/g, " ").trim().slice(0, 200));
+      state.refitStarted[refit.id] = true;
+      refit.done = true;
+      refit.submitting = false;
+      renderRefit();
+      if (state.tab === "edit") renderContent();
+    } catch (error) {
+      refit.submitting = false;
+      refit.confirming = false;
+      refit.info = `Umrüstung fehlgeschlagen: ${error.message}`;
+      renderRefit();
+    }
+  }
+
+  /* ---------- Fahrzeuge bearbeiten: Name, Besatzung, Umbau – ohne Neuladen ---------- */
+
+  function editableVehicles() {
+    return state.analyzed.filter((vehicle) => (state.vehicleEditBuilding === "all" || String(vehicle.buildingId) === state.vehicleEditBuilding)
+      && matchesQuery(vehicle.caption, vehicle.typeCaption, vehicle.buildingCaption, state.vehicleEdits[vehicle.id]?.caption));
+  }
+
+  function vehicleRaw(id) {
+    return state.vehicles.find((vehicle) => Number(vehicle.id) === Number(id));
+  }
+
+  function originalVehicleValue(id, field) {
+    const raw = vehicleRaw(id) || {};
+    if (field === "caption") return String(raw.caption ?? "");
+    if (field === "max") return String(Number(raw.max_personnel_override) > 0 ? Number(raw.max_personnel_override) : 0);
+    return String(raw.vehicle_type ?? "");
+  }
+
+  function setVehicleEdit(id, field, value) {
+    const edits = state.vehicleEdits[id] || {};
+    if (String(value) === originalVehicleValue(id, field) || (field === "caption" && !String(value).trim())) delete edits[field];
+    else edits[field] = String(value);
+    if (Object.keys(edits).length) state.vehicleEdits[id] = edits;
+    else delete state.vehicleEdits[id];
+    delete state.vehicleEditStatus[id];
+    const input = shell.querySelector(`[data-edit-id="${id}"][data-edit-field="${field}"]`);
+    input?.classList.toggle("is-changed", field in edits);
+    const status = shell.querySelector(`[data-edit-status="${id}"]`);
+    if (status) status.innerHTML = vehicleEditStatus(id);
+    updateVehicleEditBar();
+  }
+
+  function updateVehicleEditBar() {
+    const count = Object.keys(state.vehicleEdits).length;
+    const counter = shell.querySelector("#lssfo-edit-count");
+    if (counter) counter.textContent = count ? `${formatNumber(count)} Fahrzeug${count === 1 ? "" : "e"} geändert` : "Keine offenen Änderungen";
+    for (const button of shell.querySelectorAll('[data-action="edit-save-all"], [data-action="edit-discard"]')) button.disabled = !count || state.vehicleEditSaving;
+    const tabCount = shell.querySelector('[data-tab-count="edit"]');
+    if (tabCount) tabCount.textContent = formatNumber(count);
+  }
+
+  function vehicleEditStatus(id) {
+    const status = state.vehicleEditStatus[id];
+    if (status === "saving") return badge("speichert …", "neutral");
+    if (status === "saved") return badge("gespeichert", "ok");
+    if (status) return `<span class="lssfo-badge danger" title="${escapeHtml(status)}">Fehler</span>`;
+    return state.vehicleEdits[id] ? badge("geändert", "warn") : "";
+  }
+
+  function renderVehicleEditor(content) {
+    const rows = editableVehicles();
+    const buildings = [...new Map(state.analyzed.map((vehicle) => [vehicle.buildingId, vehicle.buildingCaption])).entries()]
+      .sort((a, b) => textCollator.compare(a[1], b[1]));
+    const buildingOptions = buildings.map(([id, caption]) => `<option value="${id}"${String(id) === state.vehicleEditBuilding ? " selected" : ""}>${escapeHtml(caption)}</option>`).join("");
+    const controls = `<div class="lssfo-editor-bar">
+      <label>Wache<select id="lssfo-edit-building"><option value="all">Alle Wachen</option>${buildingOptions}</select></label>
+      ${state.vehicleEditBuilding !== "all" ? `<button type="button" class="lssfo-btn" data-action="edit-load-building">Umbau prüfen (${formatNumber(rows.length)})</button>` : ""}
+      <div class="lssfo-editor-replace"><label>Im Namen suchen<input id="lssfo-edit-find" type="text" placeholder="z. B. Florian"></label><label>ersetzen durch<input id="lssfo-edit-replace" type="text" placeholder="z. B. Florian NÖ"></label><button type="button" class="lssfo-btn" data-action="edit-replace">Bei ${formatNumber(rows.length)} ${rows.length === 1 ? "Fahrzeug" : "Fahrzeugen"} anwenden</button></div>
+      <div class="lssfo-editor-save"><span id="lssfo-edit-count"></span><button type="button" class="lssfo-btn" data-action="edit-discard">Verwerfen</button><button type="button" class="lssfo-btn lssfo-btn-primary" data-action="edit-save-all">${state.vehicleEditSaving ? "Speichert …" : "Alle speichern"}</button></div>
+    </div>
+    <div class="lssfo-callout"><span>Änderungen werden erst mit „Alle speichern“ ins Spiel übernommen – im Hintergrund, ohne die Seite neu zu laden. „prüfen“ zeigt, ob sich ein Fahrzeug umrüsten lässt; Umrüstungen werden einzeln bestätigt und nur mit Credits bezahlt.</span></div>`;
+    content.innerHTML = controls + table(["Wache", "Name", "Typ", "Max. Besatzung", "Umbau", "Status"], rows.map((vehicle) => {
+      const edits = state.vehicleEdits[vehicle.id] || {};
+      const caption = edits.caption ?? vehicle.caption;
+      const maxValue = edits.max ?? originalVehicleValue(vehicle.id, "max");
+      const maxOptions = [`<option value="0"${maxValue === "0" ? " selected" : ""}>Standard (${vehicle.staffMax})</option>`];
+      for (let count = 1; count <= Math.max(vehicle.staffMax, Number(maxValue) || 0); count += 1) {
+        maxOptions.push(`<option value="${count}"${String(count) === maxValue ? " selected" : ""}>${count}</option>`);
+      }
+      return [
+        `<a href="/buildings/${vehicle.buildingId}" target="_blank" rel="noopener">${escapeHtml(vehicle.buildingCaption)}</a>`,
+        `<input class="lssfo-inline-input${"caption" in edits ? " is-changed" : ""}" type="text" maxlength="40" data-edit-id="${vehicle.id}" data-edit-field="caption" value="${escapeHtml(caption)}" aria-label="Name von ${escapeHtml(vehicle.caption)}">`,
+        escapeHtml(vehicle.typeCaption),
+        `<select class="lssfo-inline-input${"max" in edits ? " is-changed" : ""}" data-edit-id="${vehicle.id}" data-edit-field="max" aria-label="Maximale Besatzung">${maxOptions.join("")}</select>`,
+        renderUpgradeCell(vehicle, edits),
+        `<span data-edit-status="${vehicle.id}">${vehicleEditStatus(vehicle.id)}</span>`,
+      ];
+    }), rows.length, "edit");
+    updateVehicleEditBar();
+  }
+
+  function renderUpgradeCell(vehicle, edits) {
+    const options = state.vehicleEditOptions[vehicle.id];
+    if (!options) return `<span data-edit-id="${vehicle.id}"><button type="button" class="lssfo-btn lssfo-btn-small" data-action="edit-load-options">prüfen</button></span>`;
+    if (options === "loading") return '<span class="lssfo-muted">lädt …</span>';
+    if (options.error) return `<span class="lssfo-muted" title="${escapeHtml(options.error)}">nicht abrufbar</span>`;
+    if (state.refitStarted[vehicle.id]) return badge("Umrüstung läuft", "warn");
+    if (options.refitUrl) return `<span data-edit-id="${vehicle.id}"><button type="button" class="lssfo-btn lssfo-btn-small" data-action="refit-open">Umrüsten …</button></span>`;
+    if (!options.types.length) return '<span class="lssfo-muted">kein Umbau</span>';
+    const current = edits.type ?? originalVehicleValue(vehicle.id, "type");
+    return `<select class="lssfo-inline-input${"type" in edits ? " is-changed" : ""}" data-edit-id="${vehicle.id}" data-edit-field="type" aria-label="Umbau">${options.types.map((option) => `<option value="${escapeHtml(option.value)}"${option.value === current ? " selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}</select>`;
+  }
+
+  // Liest das Bearbeitungsformular des Spiels und findet ein Umbau-/Fahrzeugtyp-Auswahlfeld.
+  function findUpgradeSelect(form) {
+    const direct = form.querySelector('select[name="vehicle[vehicle_type]"], select[name*="vehicle_type"], select[name*="upgrade"]');
+    if (direct) return direct;
+    return [...form.querySelectorAll("select")].find((select) => {
+      const label = select.id ? form.querySelector(`label[for="${CSS.escape(select.id)}"]`) : select.closest("label, .form-group")?.querySelector("label");
+      return /fahrzeugtyp|umbau|upgrade|umrüst/i.test(`${label?.textContent || ""} ${select.name}`);
+    }) || null;
+  }
+
+  async function fetchVehicleForm(id) {
+    const doc = new DOMParser().parseFromString(await fetchPage(`/vehicles/${id}/edit`), "text/html");
+    const nameInput = doc.querySelector('#vehicle_caption, input[name="vehicle[caption]"]');
+    const form = nameInput?.closest("form");
+    if (!form) throw new Error("Bearbeitungsformular nicht gefunden");
+    return { form, nameInput, maxInput: form.querySelector('#vehicle_personal_max, [name="vehicle[personal_max]"], [name="vehicle[max_personnel_override]"]'), typeSelect: findUpgradeSelect(form) };
+  }
+
+  async function loadVehicleOptions(id, rerender = true) {
+    state.vehicleEditOptions[id] = "loading";
+    if (rerender) renderContent();
+    try {
+      const [{ typeSelect }, refitUrl] = await Promise.all([fetchVehicleForm(id), findRefitUrl(id).catch(() => null)]);
+      const types = typeSelect ? [...typeSelect.options].filter((option) => option.value !== "").map((option) => ({ value: option.value, label: option.textContent.trim() })) : [];
+      state.vehicleEditOptions[id] = { types: types.length > 1 ? types : [], refitUrl };
+    } catch (error) {
+      state.vehicleEditOptions[id] = { types: [], error: error.message };
+    }
+    if (rerender && state.tab === "edit") renderContent();
+  }
+
+  // Umbau-Möglichkeiten für alle Fahrzeuge der gewählten Wache auf einmal prüfen.
+  async function loadBuildingOptions() {
+    const ids = editableVehicles().map((vehicle) => vehicle.id).filter((id) => !state.vehicleEditOptions[id]);
+    for (const id of ids) state.vehicleEditOptions[id] = "loading";
+    renderContent();
+    await runLimited(ids, 2, (id) => loadVehicleOptions(id, false));
+    if (state.tab === "edit") renderContent();
+  }
+
+  function applyNameReplace() {
+    const find = shell.querySelector("#lssfo-edit-find")?.value || "";
+    const replacement = shell.querySelector("#lssfo-edit-replace")?.value ?? "";
+    if (!find) return;
+    let changed = 0;
+    for (const vehicle of editableVehicles()) {
+      const current = state.vehicleEdits[vehicle.id]?.caption ?? vehicle.caption;
+      if (!current.includes(find)) continue;
+      const next = current.split(find).join(replacement).slice(0, 40);
+      setVehicleEdit(vehicle.id, "caption", next);
+      changed += 1;
+    }
+    renderContent();
+    const counter = shell.querySelector("#lssfo-edit-count");
+    if (counter && !changed) counter.textContent = `„${find}“ kommt in keinem Namen vor`;
+  }
+
+  function discardVehicleEdits() {
+    state.vehicleEdits = {};
+    state.vehicleEditStatus = {};
+    renderContent();
+  }
+
+  async function saveVehicleEdits() {
+    if (state.vehicleEditSaving) return;
+    const ids = Object.keys(state.vehicleEdits).map(Number);
+    if (!ids.length) return;
+    state.vehicleEditSaving = true;
+    renderContent();
+    await runLimited(ids, 2, async (id) => {
+      const setStatus = (value) => {
+        state.vehicleEditStatus[id] = value;
+        const cell = shell.querySelector(`[data-edit-status="${id}"]`);
+        if (cell) cell.innerHTML = vehicleEditStatus(id);
+      };
+      const edits = { ...state.vehicleEdits[id] };
+      setStatus("saving");
+      try {
+        const { form, nameInput, maxInput, typeSelect } = await fetchVehicleForm(id);
+        if ("caption" in edits) nameInput.value = edits.caption.trim();
+        if ("max" in edits) {
+          if (!maxInput) throw new Error("Besatzung ist für dieses Fahrzeug nicht einstellbar");
+          if (maxInput.tagName === "SELECT" && ![...maxInput.options].some((option) => option.value === edits.max)) maxInput.add(new Option(edits.max, edits.max));
+          maxInput.value = edits.max;
+        }
+        if ("type" in edits) {
+          if (!typeSelect) throw new Error("Umbau ist für dieses Fahrzeug nicht möglich");
+          typeSelect.value = edits.type;
+        }
+        const response = await submitParsedForm(form);
+        // Das Spiel zeigt Validierungsfehler im erneut ausgelieferten Formular an.
+        const answer = await response.text().catch(() => "");
+        const answerDoc = new DOMParser().parseFromString(answer, "text/html");
+        const problem = answerDoc.querySelector("#vehicle_caption") && answerDoc.querySelector("#error_explanation, .field_with_errors, .has-error");
+        if (problem) throw new Error(problem.textContent.replace(/\s+/g, " ").trim().slice(0, 160) || "vom Spiel abgelehnt");
+        const raw = vehicleRaw(id);
+        if (raw) {
+          if ("caption" in edits) raw.caption = edits.caption.trim();
+          if ("max" in edits) raw.max_personnel_override = Number(edits.max) > 0 ? Number(edits.max) : null;
+          if ("type" in edits) raw.vehicle_type = Number(edits.type);
+        }
+        delete state.vehicleEdits[id];
+        setStatus("saved");
+      } catch (error) {
+        setStatus(error.message || "Speichern fehlgeschlagen");
+      }
+      await delay(80, new AbortController().signal);
+    });
+    state.vehicleEditSaving = false;
+    analyze();
+    render();
+    void persistCurrentCache();
   }
 
   function renderVehicles(content) {
@@ -1715,6 +2148,8 @@
 
   function openCourseAssistant() {
     const schools = findSchoolBuildings();
+    // Eine einzige Schule: direkt im Spiel öffnen (Lightbox), sonst kurz auswählen lassen.
+    if (schools.length === 1 && openGameLightbox(`/buildings/${schools[0].id}`)) return;
     state.courseAssistant = { schools, schoolId: schools[0]?.id || null };
     renderCourseAssistant();
   }
@@ -1746,7 +2181,7 @@
           ${schoolUrl ? `<a class="lssfo-btn" href="${schoolUrl}" target="_blank" rel="noopener">In neuem Tab öffnen ↗</a>` : ""}
           <p>Im eingebetteten Schulungsbereich kannst du den Lehrgang anlegen und anschließend Personal aus verschiedenen Wachen auswählen. Die eigentliche Buchung erfolgt erst über die Schaltflächen des Spiels.</p>
         </div>
-        <div class="lssfo-course-frame-wrap">${schoolUrl ? `<iframe id="lssfo-course-frame" src="${schoolUrl}" title="Leitstellenspiel-Schulungsbereich"></iframe>` : '<div class="lssfo-empty">Es wurde keine Ausbildungsstätte erkannt. Prüfe, ob deine Schuldaten über „Aktualisieren“ geladen wurden.</div>'}</div>
+        ${hasGameLightbox() && schoolUrl ? `<div class="lssfo-course-open"><button type="button" class="lssfo-btn lssfo-btn-primary" data-action="course-open-school">Lehrgangsbereich öffnen</button><span>Öffnet die Ausbildungsstätte im Spiel – dort Lehrgang wählen und Personal aus allen Wachen auswählen.</span></div>` : `<div class="lssfo-course-frame-wrap">${schoolUrl ? `<iframe id="lssfo-course-frame" src="${schoolUrl}" title="Leitstellenspiel-Schulungsbereich"></iframe>` : '<div class="lssfo-empty">Es wurde keine Ausbildungsstätte erkannt. Prüfe, ob deine Schuldaten über „Aktualisieren“ geladen wurden.</div>'}</div>`}
       </aside>`;
     const frame = element.querySelector("#lssfo-course-frame");
     frame?.addEventListener("load", () => {
@@ -1777,6 +2212,11 @@
         <div class="lssfo-course-frame-wrap"><iframe id="lssfo-game-frame" src="${escapeHtml(url)}" title="${escapeHtml(title || "Spielseite")}"></iframe></div>
       </aside>`;
     monitorEmbeddedFrame(element.querySelector("#lssfo-game-frame"), "Diese Seite lässt sich nicht im Panel anzeigen. Mit Strg-Klick auf den Link öffnet sie sich in einem neuen Tab.");
+  }
+
+  function hasGameLightbox() {
+    const pageWindow = typeof unsafeWindow !== "undefined" ? unsafeWindow : window;
+    return typeof pageWindow.lightboxOpen === "function";
   }
 
   // Die Lightbox des Spiels zeigt Wachen-, Personal- und Fahrzeugseiten zuverlässig an
@@ -1866,7 +2306,7 @@
     const more = remaining > 0
       ? `<div class="lssfo-table-more"><span>${formatNumber(visibleRows.length)} von ${formatNumber(sortedRows.length)} angezeigt</span><button type="button" class="lssfo-btn" data-action="table-more" data-table="${escapeHtml(tableKey)}">Weitere ${formatNumber(Math.min(TABLE_PAGE_SIZE, remaining))} anzeigen</button><button type="button" class="lssfo-btn" data-action="table-all" data-table="${escapeHtml(tableKey)}">Alle anzeigen</button></div>`
       : "";
-    return `<div class="lssfo-table-meta">${formatNumber(count)} Einträge · Spaltenüberschrift anklicken zum Sortieren</div><div class="lssfo-table-wrap"><table><thead><tr>${sortableHeaders(headers, tableKey)}</tr></thead><tbody>${visibleRows.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody></table></div>${more}`;
+    return `<div class="lssfo-table-meta">${formatNumber(count)} ${count === 1 ? "Eintrag" : "Einträge"} · Spaltenüberschrift anklicken zum Sortieren</div><div class="lssfo-table-wrap"><table><thead><tr>${sortableHeaders(headers, tableKey)}</tr></thead><tbody>${visibleRows.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody></table></div>${more}`;
   }
 
   function sortableHeaders(headers, tableKey) {
@@ -3135,6 +3575,7 @@
       gauge: '<path d="M4.9 19a9 9 0 1 1 14.2 0"/><path d="m12 13 4-4"/><circle cx="12" cy="13" r="1"/>',
       chevron: '<path d="m9 18 6-6-6-6"/>',
       transfer: '<path d="M17 3l4 4-4 4M3 7h18M7 21l-4-4 4-4m14 4H3"/>',
+      edit: '<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
       vehicle: '<path d="M3 7h11v10H3z"/><path d="M14 10h3l3 3v4h-6z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
       building: '<path d="M4 21V7l8-4 8 4v14"/><path d="M8 10h2m4 0h2m-8 4h2m4 0h2M9 21v-4h6v4"/>',
       training: '<path d="m3 9 9-5 9 5-9 5-9-5Z"/><path d="M7 12v4c3 2 7 2 10 0v-4M21 9v6"/>',

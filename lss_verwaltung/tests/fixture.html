@@ -91,8 +91,32 @@
     window.fetch = async (input, options = {}) => {
       const key = typeof input === "string" ? input : input.url;
       const pathname = new URL(key, location.origin).pathname;
-      if (pathname === "/vehicles/101/edit") {
-        return new Response('<form action="/vehicles/101" method="post"><input name="authenticity_token" value="test"><input id="vehicle_caption" name="vehicle[caption]" value="Florian 1/46-1"><select id="vehicle_personal_max" name="vehicle[personal_max]"><option value="0">Standard</option><option value="3" selected>3</option></select></form>', { status: 200 });
+      // Fahrzeugseite mit Umrüst-Link (nur LF 102) und Umrüst-Formular wie im Spiel.
+      const vehiclePage = pathname.match(/^\/vehicles\/(\d+)$/);
+      if (vehiclePage && String(options.method || "GET").toUpperCase() === "GET") {
+        return new Response(`<h1>Fahrzeug ${vehiclePage[1]}</h1>${vehiclePage[1] === "102" ? '<a href="/vehicles/102/umruesten" class="btn btn-default">Umrüsten</a>' : ""}`, { status: 200 });
+      }
+      if (pathname === "/vehicles/102/umruesten" && String(options.method || "GET").toUpperCase() === "GET") {
+        return new Response(`<h1>Fahrzeug umrüsten</h1><div class="alert alert-info">Durch eine Umrüstung kannst du die Eigenschaften des Fahrzeugs anpassen. Die Umrüstung des Fahrzeugs dauert 48 Stunden.</div>
+          <form action="/vehicles/102/umruesten" method="post"><input type="hidden" name="authenticity_token" value="test">
+          <div class="input-group"><span class="input-group-addon">Umrüstung auswählen</span><select name="refit[preset]"><option value="standard">standard</option><option value="maximum" selected>maximum</option></select></div>
+          <div class="form-group"><label>Maximale Personenzahl</label><p>Die maximale Anzahl an Einsatzkräften.</p><input type="text" name="refit[max_personnel]" value="9"><input type="range" min="1" max="9" value="9"></div>
+          <div class="form-group"><label>Wassermenge (in Litern)</label><p>Die Menge an Wasser.</p><input type="text" name="refit[water]" value="5000"><input type="range" min="0" max="5000" value="5000"></div>
+          <div class="form-group"><label>Pumpleistung (in Litern/min)</label><p>Die Leistung der verbauten Pumpe.</p><input type="text" name="refit[pump]" value="4000"><input type="range" min="0" max="4000" value="4000"></div>
+          <button type="submit" name="coins" value="1" class="btn btn-success">Fahrzeug umrüsten (10 Coins)</button><button type="submit" name="credits" value="1" class="btn btn-success">Fahrzeug umrüsten (20.000 Credits)</button></form>`, { status: 200 });
+      }
+      if (pathname === "/vehicles/102/umruesten") {
+        const body = new URLSearchParams(String(options.body));
+        if (body.has("coins") || !body.has("credits")) return new Response('<div class="alert alert-danger">Fehler: falscher Knopf</div>', { status: 200 });
+        window.lastRefitRequest = Object.fromEntries(body);
+        return new Response("ok", { status: 200 });
+      }
+      const editMatch = pathname.match(/^\/vehicles\/(\d+)\/edit$/);
+      if (editMatch) {
+        // RTW 103 bietet zum Testen einen Umbau (Fahrzeugtyp-Auswahl) an.
+        const id = editMatch[1];
+        const typeField = id === "103" ? '<div class="form-group"><label for="vehicle_vehicle_type">Fahrzeugtyp</label><select id="vehicle_vehicle_type" name="vehicle[vehicle_type]"><option value="28" selected>RTW</option><option value="74">NAW</option></select></div>' : "";
+        return new Response(`<form action="/vehicles/${id}" method="post"><input name="authenticity_token" value="test"><input id="vehicle_caption" name="vehicle[caption]" value="Fahrzeug ${id}"><select id="vehicle_personal_max" name="vehicle[personal_max]"><option value="0" selected>Standard</option><option value="3">3</option></select>${typeField}</form>`, { status: 200 });
       }
       if (pathname === "/buildings/20/edit") {
         return new Response('<form action="/buildings/20" method="post"><input name="authenticity_token" value="test"><input id="building_caption" name="building[caption]" value="Feuerwache Innenstadt"><select name="building[leitstelle_building_id]"><option value="">Ohne Leitstelle</option><option value="30" selected>Leitstelle Wien</option></select></form>', { status: 200 });
@@ -132,7 +156,7 @@
         mocks["/api/buildings"][0].enabled = !mocks["/api/buildings"][0].enabled;
         return new Response("ok", { status: 200 });
       }
-      if ((pathname === "/vehicles/101" || pathname === "/buildings/20") && String(options.method).toUpperCase() === "POST") {
+      if ((/^\/vehicles\/\d+$/.test(pathname) || pathname === "/buildings/20") && String(options.method).toUpperCase() === "POST") {
         return new Response("ok", { status: 200 });
       }
       if (pathname === "/buildings/new") {
