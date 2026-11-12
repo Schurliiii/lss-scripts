@@ -1,0 +1,9 @@
+/* Symbol in der LSS-Navigationsleiste. Wird als einziges Stylesheet schon beim Seitenaufbau
+   geladen; alles andere erst beim ersten Öffnen. __P__ ist das Präfix des jeweiligen Scripts. */
+.__P__-launcher-host { display:block; float:left; height:50px; margin:0; padding:0; list-style:none; }
+.__P__-launcher-host .__P__-launcher { display:flex; width:44px; height:50px; align-items:center; justify-content:center; margin:0; padding:0; border:0; border-radius:0; color:#fff; background:transparent; box-shadow:none; cursor:pointer; transition:background .2s; }
+.__P__-launcher-host .__P__-launcher:hover,
+.__P__-launcher-host .__P__-launcher:focus-visible { color:#fff; background:rgba(255,255,255,.14); outline:0; }
+.__P__-launcher > span { display:none; }
+.__P__-launcher > svg { display:block; width:18px; height:18px; fill:currentColor; filter:drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+:root.lssfo-standalone .__P__-launcher-host { display:none !important; }

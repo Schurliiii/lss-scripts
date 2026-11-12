@@ -1,0 +1,14 @@
+{
+  "name": "lss-scripts",
+  "private": true,
+  "description": "Tampermonkey-Scripts für Leitstellenspiel.de: LSS Verwaltung und LSS Wachenplaner Österreich",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node lss_verwaltung/build-userscript.js && node lss_einsatzkarte/build-userscript.js",
+    "test": "node tests/kit.test.js && node lss_verwaltung/tests/core.test.js && node lss_verwaltung/tests/fixture-syntax.test.js && node lss_einsatzkarte/tests/data.test.js",
+    "test:browser": "node tests/browser-smoke.js"
+  }
+}

@@ -6,12 +6,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>LSS Verwaltung – Testansicht</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="../styles.css">
   <style>body{margin:0;min-height:100vh;background:#202526;font-family:system-ui} body.dark tbody tr td{color:#101820;background:#333} .mock-navbar{height:50px;background:#cf2f2c}.mock-navbar ul{display:flex;justify-content:flex-end;height:50px;margin:0;padding:0 30px;list-style:none}.mock-navbar li{height:50px}.mock-navbar a{display:flex;height:50px;align-items:center;padding:0 14px;color:#fff;text-decoration:none}.mock-navbar .dropdown-menu{display:none}.mock{padding:40px;color:#a9b6ba}</style>
 </head>
 <body class="dark">
   <nav class="navbar mock-navbar"><ul class="navbar-nav navbar-right"><li class="dropdown"><a href="#" title="Community">▤</a><ul class="dropdown-menu"><li><a href="/forum">Forum</a></li></ul></li><li id="mock-next"><a href="/credits">Credits</a></li></ul></nav>
-  <div class="mock"><h2>Leitstellenspiel – lokale Testseite</h2><p>Unten rechts die Übersicht öffnen.</p></div>
+  <div class="mock"><h2>Leitstellenspiel – lokale Testseite</h2><p>Oben in der Leiste das Symbol der LSS Verwaltung öffnen. Vorher <code>node build-userscript.js</code> ausführen.</p></div>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     window.LSS_TEST_PAGE = true; // Testseite gilt als Hauptseite (Navigationssymbole einblenden).
@@ -192,21 +191,7 @@
       return new Response(JSON.stringify(mocks[key]), { status: 200, headers: { "Content-Type": "application/json" } });
     };
   </script>
-  <script>
-    const userscriptMode = new URLSearchParams(location.search).has("userscript");
-    const firstScript = document.createElement("script");
-    firstScript.src = userscriptMode ? "../dist/lss-verwaltung.user.js" : "../core.js";
-    if (!userscriptMode) {
-      const loadInOrder = (sources) => {
-        if (!sources.length) return;
-        const script = document.createElement("script");
-        script.src = sources[0];
-        script.addEventListener("load", () => loadInOrder(sources.slice(1)));
-        document.body.appendChild(script);
-      };
-      firstScript.addEventListener("load", () => loadInOrder(["../content.js"]));
-    }
-    document.body.appendChild(firstScript);
-  </script>
+  <!-- Lädt das gebaute Script (node build-userscript.js); ?big=900 erzeugt Belastungsdaten. -->
+  <script src="../dist/lss-verwaltung.user.js"></script>
 </body>
 </html>

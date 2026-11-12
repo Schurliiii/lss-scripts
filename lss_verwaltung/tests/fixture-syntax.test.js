@@ -7,7 +7,7 @@ const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
   .map((match) => match[1])
   .filter((source) => source.trim());
 
-assert.ok(scripts.length >= 2, "Testseite enthält die erwarteten Inline-Skripte");
+assert.ok(scripts.length >= 1, "Testseite enthält die nachgebildeten Spiel-Endpunkte");
 for (const source of scripts) new Function(source);
 
 console.log("fixture-syntax.test.js: alle Inline-Skripte sind syntaktisch gültig");

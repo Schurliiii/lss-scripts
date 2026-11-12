@@ -15,14 +15,39 @@ Zwei unabhängige Tampermonkey-Scripts für [leitstellenspiel.de](https://www.le
 
 ## Updates
 
-Tampermonkey prüft regelmäßig auf neue Versionen und zeigt sie an – ein Klick auf **Aktualisieren** genügt. Sofort prüfen: Tampermonkey-Dashboard → **Nach Userscript-Updates suchen**.
+Tampermonkey prüft regelmäßig auf neue Versionen und zeigt sie an – ein Klick auf **Aktualisieren** genügt. Sofort prüfen: Tampermonkey-Dashboard → **Nach Userscript-Updates suchen**. Was sich geändert hat, steht im [Changelog](CHANGELOG.md).
+
+## Rücksicht auf Spiel und Rechner
+
+Beide Scripts sind so gebaut, dass sie weder das Spiel bremsen noch die Server belasten:
+
+- **Nur auf der Hauptseite, nie in Spielfenstern.** In den Einsatz-, Fahrzeug- und Wachenfenstern (Lightbox) laufen die Scripts gar nicht. Auf der Hauptseite entsteht beim Laden nur das Symbol in der Navigationsleiste; Fenster, Karte, Daten und Stylesheets folgen erst beim ersten Öffnen.
+- **Gedrosselte Anfragen.** Alle Anfragen an das Spiel laufen durch eine gemeinsame Warteschlange: höchstens zwei gleichzeitig, mindestens 250 ms Abstand, automatische Pause bei Überlastung. Prüfungen, die viele Seiten lesen (Ausbildungen, Personal), starten nur auf ausdrücklichen Klick und lassen sich jederzeit stoppen.
+- **Zwischenspeicher.** Spieldaten werden fünf Minuten, der öffentliche Fahrzeugkatalog zwölf Stunden lokal gespeichert.
+- **Nichts ohne Bestätigung.** Gebaut, umgerüstet oder gespeichert wird nur nach Klick auf den jeweiligen Knopf – bezahlt wird ausschließlich mit Credits, nie mit Coins.
+- **Sparsamer Modus.** „Effekte: Sparsam“ (bzw. automatisch auf schwächeren Rechnern) schaltet Glas-Unschärfe und Animationen ab.
 
 ## Für Entwickler
 
-- Script bauen: `node build-userscript.js` im jeweiligen Ordner. Das erzeugt `dist/*.user.js` und `dist/*.meta.js` (nur der Kopf für die Update-Prüfung).
-- Update-Adressen und Namespace kommen aus `repo.config.json`.
-- Für ein Update `@version` im jeweiligen `build-userscript.js` erhöhen, neu bauen und committen.
-- Tests: `node tests/core.test.js` und `node tests/fixture-syntax.test.js` in `lss_verwaltung`; Testseiten `tests/fixture.html` beider Projekte über einen lokalen Webserver öffnen.
+```text
+shared/            gemeinsamer Unterbau beider Scripts
+  kit.js           Anfragen-Warteschlange, Dialoge, Design, Bau-Dialog, Webseiten-Brücke
+  kit.css          gemeinsame Gestaltung (Präfix __P__ wird beim Bauen ersetzt)
+  launcher.css     Symbol in der Navigationsleiste (einziges Stylesheet beim Seitenaufbau)
+  build.js         Kopfblock, Update-Adressen, Bündeln
+lss_verwaltung/
+  src/             core.js (Rechenkern, testbar) · app.js · table.js · views.js · map.js · editor.js · manager.js · scans.js · shell.js · main.js
+  styles.css       eigene Bereiche
+lss_einsatzkarte/
+  userscript/      planner.js · planner.css
+  index.html …     eigenständige Webversion des Wachenplaners
+tests/             kit.test.js · browser-smoke.js (Chrome/Edge ohne Fenster)
+```
+
+- Bauen: `npm run build` (oder `node build-userscript.js` im jeweiligen Ordner). Das erzeugt `dist/*.user.js` und `dist/*.meta.js` (nur der Kopf für die Update-Prüfung); die Verwaltung aktualisiert dabei auch `manifest.json`.
+- Tests: `npm test` (Warteschlange, Rechenkern, Testseiten, Standortdaten) und `npm run test:browser` (klickt beide Scripts auf den Testseiten mit nachgebildeten Spiel-Endpunkten durch, inklusive Belastungsdaten mit 900 Wachen und der Webseiten-Brücke). Benötigt Node 22 oder neuer; für den Browsertest Chrome oder Edge (sonst `CHROME_PATH` setzen).
+- Testseiten zum Ausprobieren: `tests/fixture.html` beider Projekte über einen lokalen Webserver öffnen (z. B. `python -m http.server` im Repository).
+- Update-Adressen und Namespace kommen aus `repo.config.json`. Für ein Update `VERSION` im jeweiligen `build-userscript.js` erhöhen, bauen, testen und committen.
 
 ## Datenquellen
 

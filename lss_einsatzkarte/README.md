@@ -2,7 +2,7 @@
 
 Interaktive, statische Webkarte zur realistischen Platzierung von Feuerwehr- und Rettungswachen im Leitstellenspiel.
 
-> **Empfohlen: als Userscript direkt im Spiel.** Über den Installationslink im [Haupt-README](../README.md) oder `dist/lss-wachenplaner.user.js` in Tampermonkey installieren. Updates meldet Tampermonkey automatisch. Der Wachenplaner erscheint dann als Stecknadel-Symbol in der LSS-Navigationsleiste – ohne Website, ohne zweiten Tab. Das Script ist eigenständig und unabhängig von „LSS Verwaltung“; beide können parallel installiert sein. Ist „LSS Verwaltung“ 1.2.0 installiert, übernimmt diese die Verbindung zur Webversion, damit Erlaubnis- und Bau-Dialoge nicht doppelt erscheinen.
+> **Empfohlen: als Userscript direkt im Spiel.** Über den Installationslink im [Haupt-README](../README.md) oder `dist/lss-wachenplaner.user.js` in Tampermonkey installieren. Updates meldet Tampermonkey automatisch. Der Wachenplaner erscheint dann als Stecknadel-Symbol in der LSS-Navigationsleiste – ohne Website, ohne zweiten Tab. Das Script ist eigenständig und unabhängig von „LSS Verwaltung“; beide können parallel installiert sein. Ist „LSS Verwaltung“ installiert, übernimmt diese die Verbindung zur Webversion, damit Erlaubnis- und Bau-Dialoge nicht doppelt erscheinen. Beide Scripts teilen sich Gestaltung, Bau-Dialog und Bedienung.
 
 ## Enthalten
 
@@ -46,11 +46,13 @@ Ohne Userscript kann `https://www.leitstellenspiel.de/api/buildings` im Browser 
 node build-userscript.js
 ```
 
-Erzeugt `dist/lss-wachenplaner.user.js` aus `userscript/planner.js`, `userscript/planner.css` und den Standortdaten dieser Karte (kompakt eingebettet, ca. 790 KB). Testseite mit nachgebildeten Spiel-Endpunkten: `tests/fixture.html` über einen lokalen Webserver öffnen.
+Erzeugt `dist/lss-wachenplaner.user.js` aus `userscript/planner.js`, `userscript/planner.css`, dem gemeinsamen Unterbau in `../shared/` und den Standortdaten dieser Karte (kompakt als JSON-Text eingebettet). Testseite mit nachgebildeten Spiel-Endpunkten: `tests/fixture.html` über einen lokalen Webserver öffnen; automatisch durchgeklickt wird sie mit `npm run test:browser` im Hauptordner.
 
 ## Leistung
 
-Unter **Darstellung → Effekte** lässt sich „Sparsam“ wählen: keine Glas-Unschärfe, deckende Flächen, keine Animationen. „Automatisch“ wählt das auf schwächeren Rechnern selbst. Die Standortdaten werden erst beim Öffnen des Planers ausgewertet; auf normalen Spielseiten kostet das Script nur wenige Millisekunden.
+Auf normalen Spielseiten entsteht nur das Symbol in der Navigationsleiste; in Spielfenstern (Lightbox) läuft das Script gar nicht. Karte, Stylesheets und Standortdaten werden erst beim Öffnen des Planers aufgebaut, die Spielseite darunter wird solange nicht gezeichnet. Anfragen an das Spiel laufen gedrosselt über eine gemeinsame Warteschlange; der Bau-Dialog verwendet die gerade abgeglichenen Gebäude statt sie erneut abzufragen.
+
+Unter **Darstellung** lassen sich Design (wie das Spiel, hell, dunkel) und Effekte wählen. „Sparsam“ bedeutet: keine Glas-Unschärfe, deckende Flächen, keine Animationen. „Automatisch“ wählt das auf schwächeren Rechnern selbst.
 
 ## Datenhinweis
 
